@@ -189,6 +189,7 @@ async function onTyping(e: KeyboardEvent) {
   }
   inputLock = true
   let letter = e.key
+  console.log('letter',letter)
   //默写特殊逻辑
   if (settingStore.wordPracticeType === WordPracticeType.Dictation) {
     if (e.code === 'Space') {
@@ -221,6 +222,13 @@ async function onTyping(e: KeyboardEvent) {
     playKeyboardAudio()
     updateCurrentWordInfo();
     inputLock = false
+  } else if (settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult) {
+    //当辨认模式下，按1和2会单独处理，如果按其他键则自动默认为不认识
+    showWordResult = true
+    emit('wrong')
+    if (settingStore.wordSound) volumeIconRef?.play()
+    inputLock = false
+    onTyping(e)
   } else {
     let right = false
     if (settingStore.ignoreCase) {

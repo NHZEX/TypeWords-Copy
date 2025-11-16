@@ -14,15 +14,10 @@ const map = {
 }
 
 export const ENV = Object.assign(map['DEV'], common)
-// export const IS_OFFICIAL = import.meta.env.DEV
-// export let IS_LOGIN = true
-export let IS_OFFICIAL = true
-export let IS_LOGIN = (!!localStorage.getItem('token')) || false
-export let CAN_REQUEST = IS_LOGIN && IS_OFFICIAL
 
 export let AppEnv = {
   TOKEN: localStorage.getItem('token') ?? '',
-  IS_OFFICIAL: true,
+  IS_OFFICIAL: false,
   IS_LOGIN: false,
   CAN_REQUEST: false
 }

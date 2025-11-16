@@ -728,7 +728,7 @@ function importOldData() {
                 <ol>
                   <li>
                     <div class="title"><b>智能模式优化</b></div>
-                    <div class="desc">练习时新增四种练习模式：学习、复习、听写、默写。</div>
+                    <div class="desc">练习时新增四种练习模式：学习、辨认、听写、默写。</div>
                   </li>
                   <li>
                     <div class="title"><b>学习模式</b></div>
@@ -741,7 +741,7 @@ function importOldData() {
                     </div>
                   </li>
                   <li>
-                    <div class="title"><b>复习模式（新增）</b></div>
+                    <div class="title"><b>辨认模式（新增）</b></div>
                     <div class="desc">
                       <ul>
                         <li>仅在复习已学单词时出现。</li>

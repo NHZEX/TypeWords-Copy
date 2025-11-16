@@ -98,19 +98,19 @@ defineEmits(['click'])
     }
   }
 
-  &:hover:not(.disabled) {
-    opacity: .6;
-  }
-
   &.primary {
     background: var(--btn-primary);
+
+    &:hover:not(.disabled) {
+      opacity: 0.6;
+    }
   }
 
   &.link {
     border-radius: 0;
     border-bottom: 2px solid transparent;
 
-    &:hover {
+    &:hover:not(.disabled) {
       border-bottom: 2px solid var(--color-font-2);
     }
   }
@@ -119,11 +119,20 @@ defineEmits(['click'])
     background: var(--btn-info);
     border: 1px solid var(--color-main-text);
     color: var(--color-main-text);
+
+    &:hover:not(.disabled) {
+      opacity: 0.6;
+    }
   }
 
   &.orange {
     background: #FACC15;
     color: black;
+
+    &:hover:not(.disabled) {
+      background: #fbe27e;
+      color: rgba(0, 0, 0, 0.6);
+    }
   }
 
   &.active {

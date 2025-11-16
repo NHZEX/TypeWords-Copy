@@ -490,6 +490,7 @@ function subscribe() {
                 :placeholder="`请输入新密码（${PASSWORD_CONFIG.minLength}-${PASSWORD_CONFIG.maxLength}位）`"
                 :min="PASSWORD_CONFIG.minLength"
                 :max="PASSWORD_CONFIG.maxLength"
+                autofocus
               />
             </FormItem>
             <FormItem prop="confirmPwd">

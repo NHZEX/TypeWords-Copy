@@ -19,11 +19,10 @@ import PracticeSettingDialog from "@/pages/word/components/PracticeSettingDialog
 import ChangeLastPracticeIndexDialog from "@/pages/word/components/ChangeLastPracticeIndexDialog.vue";
 import { useSettingStore } from "@/stores/setting.ts";
 import { useFetch } from "@vueuse/core";
-import { CAN_REQUEST, DICT_LIST, PracticeSaveWordKey } from "@/config/env.ts";
+import { AppEnv, DICT_LIST, PracticeSaveWordKey } from "@/config/env.ts";
 import { myDictList } from "@/apis";
 import PracticeWordListDialog from "@/pages/word/components/PracticeWordListDialog.vue";
 import ShufflePracticeSettingDialog from "@/pages/word/components/ShufflePracticeSettingDialog.vue";
-import Header from "@/components/Header.vue";
 
 
 const store = useBaseStore()
@@ -45,7 +44,7 @@ watch(() => store.load, n => {
 }, {immediate: true})
 
 async function init() {
-  if (CAN_REQUEST) {
+  if (AppEnv.CAN_REQUEST) {
     let res = await myDictList({type: "word"})
     if (res.success) {
       store.setState(Object.assign(store.$state, res.data))
@@ -262,12 +261,12 @@ const {
 
       <div class="flex-1" :class="!store.sdict.id && 'opacity-30 cursor-not-allowed'">
         <div class="flex justify-between">
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
             <div class="p-2 center rounded-full bg-white ">
               <IconFluentStar20Filled class="text-lg color-amber"/>
             </div>
             <div class="text-xl font-bold">
-              {{ isSaveData ? '上次学习任务' : '今日任务' }}
+              {{ isSaveData ? '上次任务' : '今日任务' }}
             </div>
             <span class="color-link cursor-pointer"
                   v-if="store.sdict.id"
@@ -323,52 +322,62 @@ const {
           </BaseButton>
 
           <div
-              class="w-full flex box-border rounded-lg cp  color-white">
-            <div class="flex-1 center gap-2 py-1 bg-[var(--btn-primary)]  hover:opacity-50">
+              class="w-full flex box-border  cp  color-white">
+            <div
+                @click="startPractice"
+                class="flex-1 rounded-l-lg center gap-2 py-1 bg-[var(--btn-primary)]  hover:opacity-50">
               <span class="line-height-[2]">{{ isSaveData ? '继续学习' : '开始学习' }}</span>
               <IconFluentArrowCircleRight16Regular class="text-xl"/>
             </div>
 
             <div class="relative group">
               <div
-                  class="w-10 h-full center bg-[var(--btn-primary)] hover:bg-gray border-solid border-2 border-l-gray border-transparent box-border">
+                  class="w-10 rounded-r-lg h-full center bg-[var(--btn-primary)] hover:bg-gray border-solid border-2 border-l-gray border-transparent box-border">
                 <IconFluentChevronDown20Regular/>
               </div>
 
               <div
-                  class="absolute z-2 left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border rounded shadow opacity-110 scale-95
+                  class="space-y-2 pt-2 absolute z-2 right-0 border rounded  opacity-0 scale-95
            group-hover:opacity-100 group-hover:scale-100
            transition-all duration-150 pointer-events-none group-hover:pointer-events-auto"
               >
-                <BaseButton
-                    v-for="i in 3"
-                    size="large" type="orange"
-                    :loading="loading"
-                    @click="check(()=>showShufflePracticeSettingDialog = true)">
-                  <div class="flex items-center gap-2">
-                    <span class="line-height-[2]">随机复习</span>
-                    <IconFluentArrowShuffle20Filled class="text-xl"/>
-                  </div>
-                </BaseButton>
+                <div>
+                  <BaseButton
+                      size="large" type="orange"
+                      :loading="loading"
+                      @click="check(()=>showShufflePracticeSettingDialog = true)">
+                    <div class="flex items-center gap-2">
+                      <span class="line-height-[2]">随机复习</span>
+                      <IconFluentArrowShuffle20Filled class="text-xl"/>
+                    </div>
+                  </BaseButton>
+                </div>
+                <div>
+                  <BaseButton
+                      size="large" type="orange"
+                      :loading="loading"
+                      @click="check(()=>showShufflePracticeSettingDialog = true)">
+                    <div class="flex items-center gap-2">
+                      <span class="line-height-[2]">重新学习</span>
+                      <IconFluentArrowShuffle20Filled class="text-xl"/>
+                    </div>
+                  </BaseButton>
+                </div>
               </div>
             </div>
-
-
           </div>
 
 
-
-
-          <BaseButton
-              v-if="store.sdict.id && store.sdict.lastLearnIndex"
-              size="large" type="orange"
-              :loading="loading"
-              @click="check(()=>showShufflePracticeSettingDialog = true)">
-            <div class="flex items-center gap-2">
-              <span class="line-height-[2]">随机复习</span>
-              <IconFluentArrowShuffle20Filled class="text-xl"/>
-            </div>
-          </BaseButton>
+<!--          <BaseButton-->
+<!--              v-if="store.sdict.id && store.sdict.lastLearnIndex"-->
+<!--              size="large" type="orange"-->
+<!--              :loading="loading"-->
+<!--              @click="check(()=>showShufflePracticeSettingDialog = true)">-->
+<!--            <div class="flex items-center gap-2">-->
+<!--              <span class="line-height-[2]">随机复习</span>-->
+<!--              <IconFluentArrowShuffle20Filled class="text-xl"/>-->
+<!--            </div>-->
+<!--          </BaseButton>-->
         </div>
       </div>
     </div>

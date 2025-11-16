@@ -4,8 +4,7 @@ import { Dict, DictId, DictResource, DictType } from "@/types/types.ts";
 import { useRouter } from "vue-router";
 import { useRuntimeStore } from "@/stores/runtime.ts";
 import dayjs from 'dayjs'
-import axios from "axios";
-import { ENV, IS_OFFICIAL, RESOURCE_PATH, SAVE_DICT_KEY, SAVE_SETTING_KEY } from "@/config/env.ts";
+import { AppEnv, RESOURCE_PATH, SAVE_DICT_KEY, SAVE_SETTING_KEY } from "@/config/env.ts";
 import { nextTick } from "vue";
 import Toast from '@/components/base/toast/Toast.ts'
 import { getDefaultDict, getDefaultWord } from "@/types/func.ts";
@@ -440,7 +439,7 @@ export function total(arr, key) {
 }
 
 export function resourceWrap(resource: string, version?: number) {
-  if (IS_OFFICIAL) {
+  if (AppEnv.IS_OFFICIAL) {
     if (resource.includes('.json')) resource = resource.replace('.json', '');
     if (!resource.includes('http')) resource = RESOURCE_PATH + resource
     if (version === undefined) {

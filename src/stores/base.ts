@@ -1,11 +1,11 @@
-import {defineStore} from 'pinia'
-import {Dict, DictId, Word} from "../types/types.ts"
-import {_getStudyProgress, checkAndUpgradeSaveDict, shakeCommonDict} from "@/utils";
-import {shallowReactive} from "vue";
-import {getDefaultDict} from "@/types/func.ts";
-import {get, set} from 'idb-keyval'
-import {CAN_REQUEST, IS_OFFICIAL, SAVE_DICT_KEY} from "@/config/env.ts";
-import {add2MyDict, dictListVersion, myDictList} from "@/apis";
+import { defineStore } from 'pinia'
+import { Dict, DictId, Word } from "../types/types.ts"
+import { _getStudyProgress, checkAndUpgradeSaveDict, shakeCommonDict } from "@/utils";
+import { shallowReactive } from "vue";
+import { getDefaultDict } from "@/types/func.ts";
+import { get, set } from 'idb-keyval'
+import { AppEnv, SAVE_DICT_KEY } from "@/config/env.ts";
+import { add2MyDict, dictListVersion, myDictList } from "@/apis";
 import Toast from "@/components/base/toast/Toast.ts";
 
 export interface BaseState {
@@ -125,13 +125,13 @@ export const useBaseStore = defineStore('base', {
         try {
           let configStr: string = await get(SAVE_DICT_KEY.key)
           let data = checkAndUpgradeSaveDict(configStr)
-          if (IS_OFFICIAL) {
+          if (AppEnv.IS_OFFICIAL) {
             let r = await dictListVersion()
             if (r.success) {
               data.dictListVersion = r.data
             }
           }
-          if (CAN_REQUEST) {
+          if (AppEnv.CAN_REQUEST) {
             let res = await myDictList()
             if (res.success) {
               Object.assign(data, res.data)
@@ -147,7 +147,7 @@ export const useBaseStore = defineStore('base', {
     },
     //改变词典
     async changeDict(val: Dict) {
-      if (CAN_REQUEST) {
+      if (AppEnv.CAN_REQUEST) {
         let r = await add2MyDict(val)
         if (!r.success) {
           return Toast.error(r.msg)
@@ -175,7 +175,7 @@ export const useBaseStore = defineStore('base', {
     },
     //改变书籍
     async changeBook(val: Dict) {
-      if (CAN_REQUEST) {
+      if (AppEnv.CAN_REQUEST) {
         let r = await add2MyDict(val)
         if (!r.success) {
           return Toast.error(r.msg)

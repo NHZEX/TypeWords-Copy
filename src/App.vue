@@ -5,14 +5,13 @@ import { useRuntimeStore } from "@/stores/runtime.ts";
 import { useSettingStore } from "@/stores/setting.ts";
 import useTheme from "@/hooks/theme.ts";
 import { shakeCommonDict } from "@/utils";
-import { routes } from "@/router.ts";
 import { get, set } from 'idb-keyval'
 
 import { useRoute } from "vue-router";
 import { DictId } from "@/types/types.ts";
-import { APP_VERSION, CAN_REQUEST, LOCAL_FILE_KEY, SAVE_DICT_KEY, SAVE_SETTING_KEY } from "@/config/env.ts";
+import { APP_VERSION, AppEnv, LOCAL_FILE_KEY, SAVE_DICT_KEY, SAVE_SETTING_KEY } from "@/config/env.ts";
 import { syncSetting } from "@/apis";
-import {useUserStore} from "@/stores/auth.ts";
+import { useUserStore } from "@/stores/auth.ts";
 
 const store = useBaseStore()
 const runtimeStore = useRuntimeStore()
@@ -53,7 +52,7 @@ watch(store.$state, (n: BaseState) => {
 
 watch(settingStore.$state, (n) => {
   set(SAVE_SETTING_KEY.key, JSON.stringify({val: n, version: SAVE_SETTING_KEY.version}))
-  if (CAN_REQUEST) {
+  if (AppEnv.CAN_REQUEST) {
     syncSetting(null, settingStore.$state)
   }
 })

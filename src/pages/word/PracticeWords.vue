@@ -248,9 +248,7 @@ function goNextStep(originList, mode, msg) {
 }
 
 async function next(isTyping: boolean = true) {
-  if (isTyping) {
-    statStore.inputWordNumber++
-  }
+  if (isTyping)  statStore.inputWordNumber++
   if (settingStore.wordPracticeMode === WordPracticeMode.Free) {
     if (data.index === data.words.length - 1) {
       data.wrongWords = data.wrongWords.filter(v => (!data.excludeWords.includes(v.word)))
@@ -310,9 +308,9 @@ async function next(isTyping: boolean = true) {
           return goNextStep(shuffle(taskWords.write), WordPracticeType.Listen, '开始听写之前')
         }
 
-        //开始复写之前
+        //开始辨认之前
         if (statStore.step === 5) {
-          return goNextStep(taskWords.write, WordPracticeType.Identify, '开始复写之前')
+          return goNextStep(taskWords.write, WordPracticeType.Identify, '开始辨认之前')
         }
 
         //开始默写上次
@@ -325,9 +323,9 @@ async function next(isTyping: boolean = true) {
           return goNextStep(shuffle(taskWords.review), WordPracticeType.Listen, '开始听写上次')
         }
 
-        //开始复写昨日
+        //开始辨认昨日
         if (statStore.step === 2) {
-          return goNextStep(taskWords.review, WordPracticeType.Identify, '开始复写昨日')
+          return goNextStep(taskWords.review, WordPracticeType.Identify, '开始辨认昨日')
         }
 
         //开始默写新词
@@ -350,6 +348,13 @@ async function next(isTyping: boolean = true) {
     }
   }
   savePracticeData()
+}
+
+function skipStep(){
+  data.index = data.words.length - 1
+  settingStore.wordPracticeType = WordPracticeType.Spell
+  data.wrongWords = []
+  next(false)
 }
 
 function onWordKnow() {
@@ -649,6 +654,7 @@ useEvents([
         :is-collect="isWordCollect(word)"
         @toggle-collect="toggleWordCollect(word)"
         @skip="next(false)"
+        @skipStep="skipStep"
       />
     </template>
   </PracticeLayout>

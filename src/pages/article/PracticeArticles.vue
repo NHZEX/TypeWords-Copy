@@ -34,7 +34,7 @@ import { useRoute, useRouter } from "vue-router";
 import PracticeLayout from "@/components/PracticeLayout.vue";
 import ArticleAudio from "@/pages/article/components/ArticleAudio.vue";
 import VolumeSetting from "@/pages/article/components/VolumeSetting.vue";
-import { CAN_REQUEST, DICT_LIST, PracticeSaveArticleKey } from "@/config/env.ts";
+import { AppEnv, DICT_LIST, PracticeSaveArticleKey } from "@/config/env.ts";
 import { addStat, setDictProp } from "@/apis";
 import { useRuntimeStore } from "@/stores/runtime.ts";
 
@@ -254,7 +254,7 @@ async function complete() {
     wrong: statStore.wrong,
   }
 
-  if (CAN_REQUEST) {
+  if (AppEnv.CAN_REQUEST) {
     let res = await addStat({...data, type: 'article'})
     if (!res.success) {
       Toast.error(res.msg)
@@ -337,7 +337,7 @@ async function changeArticle(val: ArticleItem) {
     store.sbook.lastLearnIndex = rIndex
     getCurrentPractice()
 
-    if (CAN_REQUEST) {
+    if (AppEnv.CAN_REQUEST) {
       let res = await setDictProp(null, store.sbook)
       if (!res.success) {
         Toast.error(res.msg)

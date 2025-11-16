@@ -18,7 +18,7 @@ import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import isoWeek from 'dayjs/plugin/isoWeek'
 import { useFetch } from "@vueuse/core";
-import { CAN_REQUEST, DICT_LIST, PracticeSaveArticleKey } from "@/config/env.ts";
+import { AppEnv, DICT_LIST, PracticeSaveArticleKey } from "@/config/env.ts";
 import { myDictList } from "@/apis";
 
 dayjs.extend(isoWeek)
@@ -36,7 +36,7 @@ watch(() => store.load, n => {
 }, {immediate: true})
 
 async function init() {
-  if (CAN_REQUEST) {
+  if (AppEnv.CAN_REQUEST) {
     let res = await myDictList({type: "article"})
     if (res.success) {
       store.setState(Object.assign(store.$state, res.data))
