@@ -167,8 +167,8 @@ const {data: recommendBookList, isFetching} = useFetch(resourceWrap(DICT_LIST.AR
 
 <template>
   <BasePage>
-    <div class="card flex justify-between gap-space articles-summary">
-      <div class="articles-summary__cover">
+    <div class="card flex justify-between gap-space">
+      <div>
         <Book
             v-if="base.sbook.id"
             :is-add="false"
@@ -180,19 +180,20 @@ const {data: recommendBookList, isFetching} = useFetch(resourceWrap(DICT_LIST.AR
               :is-add="true"
               @click="router.push('/book-list')"/>
       </div>
-      <div class="flex-1 articles-summary__record">
-        <div class="articles-summary__record-header">
-          <div class="title">本周学习记录</div>
-          <div class="articles-summary__week color-gray">
+      <div class="flex-1">
+        <div class="flex items-center">
+          <div class="title mr-4">本周学习记录</div>
+          <div class="flex gap-4 color-gray">
             <div
-                class="week-item"
+                class="w-8 h-8 rounded-md center"
                 :class="item ? 'bg-[#409eff] color-white' : 'bg-gray-200'"
                 v-for="(item, i) in weekList"
                 :key="i"
-            >{{ i + 1 }}</div>
+            >{{ i + 1 }}
+            </div>
           </div>
         </div>
-        <div class="articles-summary__stats mt-3 gap-space">
+        <div class="flex gap-4 items-center mt-3 gap-space">
           <div class="stat">
             <div class="num">{{ todayTotalSpend }}</div>
             <div class="txt">今日学习时长</div>
@@ -212,7 +213,7 @@ const {data: recommendBookList, isFetching} = useFetch(resourceWrap(DICT_LIST.AR
                   :format="()=> `${ base.sbook?.lastLearnIndex || 0 }/${base.sbook?.length || 0}篇`"
                   :show-text="true"></Progress>
       </div>
-      <div class="flex flex-col justify-between items-end articles-summary__actions">
+      <div class="flex flex-col justify-between items-end">
         <div class="flex gap-4 items-center" v-opacity="base.sbook.id">
           <div class="color-link cursor-pointer" @click="router.push('/book-list')">更换</div>
         </div>
@@ -227,10 +228,10 @@ const {data: recommendBookList, isFetching} = useFetch(resourceWrap(DICT_LIST.AR
       </div>
     </div>
 
-    <div class="card flex flex-col articles-list">
-      <div class="articles-list__header">
+    <div class="card  flex flex-col">
+      <div class="flex justify-between">
         <div class="title">我的书籍</div>
-        <div class="articles-list__actions">
+        <div class="flex gap-4 items-center">
           <PopConfirm title="确认删除所有选中书籍？" @confirm="handleBatchDel" v-if="selectIds.length">
             <BaseIcon class="del" title="删除">
               <DeleteIcon/>
@@ -243,7 +244,7 @@ const {data: recommendBookList, isFetching} = useFetch(resourceWrap(DICT_LIST.AR
           <div class="color-link cursor-pointer" @click="nav('book-detail', { isAdd: true })">创建个人书籍</div>
         </div>
       </div>
-      <div class="articles-list__grid mt-4">
+      <div class="flex gap-4 flex-wrap mt-4">
         <Book :is-add="false"
               quantifier="篇"
               :item="item"
@@ -257,15 +258,15 @@ const {data: recommendBookList, isFetching} = useFetch(resourceWrap(DICT_LIST.AR
     </div>
 
 
-    <div class="card flex flex-col min-h-50 articles-list" v-loading="isFetching">
-      <div class="articles-list__header">
+    <div class="card flex flex-col min-h-50" v-loading="isFetching">
+      <div class="flex justify-between">
         <div class="title">推荐</div>
         <div class="flex gap-4 items-center">
           <div class="color-link cursor-pointer" @click="router.push('/book-list')">更多</div>
         </div>
       </div>
 
-      <div class="articles-list__grid mt-4">
+      <div class="flex gap-4 flex-wrap  mt-4">
         <Book :is-add="false"
               quantifier="篇"
               :item="item as any"
@@ -286,169 +287,6 @@ const {data: recommendBookList, isFetching} = useFetch(resourceWrap(DICT_LIST.AR
 
   .txt {
     @apply color-gray-500;
-  }
-}
-
-.articles-summary {
-  align-items: stretch;
-
-  &__cover {
-    flex-shrink: 0;
-  }
-
-  &__record {
-    display: flex;
-    flex-direction: column;
-  }
-
-  &__record-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-
-    .title {
-      margin-right: 0;
-    }
-  }
-
-  &__week {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: flex-start;
-
-    .week-item {
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: 0.5rem;
-      @apply center;
-      font-weight: 600;
-    }
-  }
-
-  &__stats {
-    display: flex;
-    gap: var(--space);
-    flex-wrap: wrap;
-  }
-
-  &__actions {
-    min-width: 12rem;
-  }
-}
-
-.articles-list {
-
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  &__actions {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  &__grid {
-    @apply flex gap-4 flex-wrap;
-  }
-}
-
-// 移动端适配
-@media (max-width: 768px) {
-  .card {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    
-    .flex.gap-space {
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
-  }
-  
-  .articles-summary {
-    flex-direction: column;
-    gap: 1rem;
-
-    &__actions {
-      width: 100%;
-      align-items: stretch !important;
-
-      .flex {
-        justify-content: space-between;
-      }
-
-      .base-button {
-        width: 100%;
-        min-height: 48px;
-      }
-    }
-
-    &__stats {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.8rem;
-    }
-
-    &__week {
-      gap: 0.35rem;
-
-      .week-item {
-        width: 2rem;
-        height: 2rem;
-        font-size: 0.85rem;
-      }
-    }
-  }
-
-  .articles-list {
-    &__actions {
-      width: 100%;
-      justify-content: flex-start;
-      gap: 0.6rem;
-    }
-
-    &__grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  
-  .stat {
-    padding: 0.8rem;
-    
-    .num {
-      font-size: 1.2rem;
-    }
-    
-    .txt {
-      font-size: 0.8rem;
-    }
-  }
-  
-  .flex.gap-4.items-center {
-    flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .card {
-    .flex.gap-4.flex-wrap {
-      grid-template-columns: 1fr;
-      
-      .stat {
-        padding: 0.5rem;
-      }
-    }
   }
 }
 </style>
