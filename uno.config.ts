@@ -18,6 +18,7 @@ export default defineConfig({
     'px-space': 'px-[var(--space)]',
     'py-space': 'py-[var(--space)]',
     'border-item': 'border-[var(--color-item-border)]',
+    'center':'flex justify-center items-center',
   },
   presets: [
     presetWind3(),

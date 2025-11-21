@@ -2,6 +2,7 @@
 import { Dict } from "@/types/types.ts";
 import Progress from '@/components/base/Progress.vue'
 import Checkbox from "@/components/base/checkbox/Checkbox.vue";
+import { isMobile } from "@/utils";
 
 interface IProps {
   item?: Partial<Dict>;
@@ -33,7 +34,7 @@ const studyProgress = $computed(() => {
 </script>
 
 <template>
-  <div class="book relative overflow-hidden">
+  <div class="book relative overflow-hidden" :class="isMobile() && 'book-mobile'">
     <template v-if="!isAdd">
       <div>
         <div class="text-base">{{ item?.name }}</div>
@@ -60,7 +61,7 @@ const studyProgress = $computed(() => {
 </template>
 
 <style scoped lang="scss">
-.book {
+.book-mobile {
   display: flex;
   flex-direction: column;
   justify-content: space-between;

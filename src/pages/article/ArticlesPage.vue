@@ -299,7 +299,6 @@ const {data: recommendBookList, isFetching} = useFetch(resourceWrap(DICT_LIST.AR
   &__record {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
   }
 
   &__record-header {
@@ -340,7 +339,6 @@ const {data: recommendBookList, isFetching} = useFetch(resourceWrap(DICT_LIST.AR
 }
 
 .articles-list {
-  gap: 1rem;
 
   &__header {
     display: flex;
@@ -359,9 +357,7 @@ const {data: recommendBookList, isFetching} = useFetch(resourceWrap(DICT_LIST.AR
   }
 
   &__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-    gap: 1rem;
+    @apply flex gap-4 flex-wrap;
   }
 }
 
