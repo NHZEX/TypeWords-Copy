@@ -251,7 +251,7 @@ onBeforeUnmount(() => {
 .select__dropdown {
   max-height: 200px;
   overflow-y: auto;
-  background-color: #fff;
+  background-color: var(--color-input-bg);
   border: 1px solid var(--color-input-border);
   border-radius: 0.25rem;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
@@ -269,13 +269,13 @@ onBeforeUnmount(() => {
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: #f5f7fa;
+    background-color: var(--color-item-hover);
   }
 
   &.is-selected {
     color: var(--color-select-bg);
     font-weight: bold;
-    background-color: #f5f7fa;
+    background-color: var(--color-item-active);
   }
 }
 

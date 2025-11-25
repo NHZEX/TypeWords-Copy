@@ -65,6 +65,7 @@ declare module 'vue' {
     IconFluentChevronLeft28Filled: typeof import('~icons/fluent/chevron-left28-filled')['default']
     IconFluentChevronUp20Filled: typeof import('~icons/fluent/chevron-up20-filled')['default']
     IconFluentClock20Regular: typeof import('~icons/fluent/clock20-regular')['default']
+    IconFluentCommentEdit20Regular: typeof import('~icons/fluent/comment-edit20-regular')['default']
     IconFluentCopy20Regular: typeof import('~icons/fluent/copy20-regular')['default']
     IconFluentCrown20Regular: typeof import('~icons/fluent/crown20-regular')['default']
     IconFluentDatabasePerson20Regular: typeof import('~icons/fluent/database-person20-regular')['default']
