@@ -84,8 +84,15 @@ export const TourConfig = {
     modalOverlayOpeningPadding: 10,
     modalOverlayOpeningRadius: 6,
     floatingUIOptions: {
-      middleware: [offset({mainAxis:30})]
+      middleware: [offset({mainAxis: 30})]
     },
   },
   total: 7
+}
+
+export const LIB_JS_URL = {
+  SHEPHERD: import.meta.env.MODE === 'development' ?
+    'https://cdn.jsdelivr.net/npm/shepherd.js@14.5.1/dist/esm/shepherd.mjs'
+    : Origin + '/libs/Shepherd.14.5.1.mjs',
+  SNAPDOM: `${Origin}/libs/snapdom.min.js`
 }

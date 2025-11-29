@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {_nextTick, groupBy, isMobile, resourceWrap, useNav} from "@/utils";
+import { _nextTick, groupBy, isMobile, loadJsLib, resourceWrap, useNav } from "@/utils";
 import BasePage from "@/components/BasePage.vue";
 import { DictResource } from "@/types/types.ts";
 import { useRuntimeStore } from "@/stores/runtime.ts";
@@ -11,12 +11,11 @@ import BackIcon from "@/components/BackIcon.vue";
 import DictGroup from "@/components/list/DictGroup.vue";
 import { useBaseStore } from "@/stores/base.ts";
 import { useRouter } from "vue-router";
-import { computed, onMounted, watch } from "vue";
+import { computed, watch } from "vue";
 import { getDefaultDict } from "@/types/func.ts";
 import { useFetch } from "@vueuse/core";
-import { DICT_LIST, TourConfig } from "@/config/env.ts";
+import { DICT_LIST, LIB_JS_URL, TourConfig } from "@/config/env.ts";
 import BaseInput from "@/components/base/BaseInput.vue";
-import Shepherd from "shepherd.js";
 import { useSettingStore } from "@/stores/setting.ts";
 
 const {nav} = useNav()
@@ -84,7 +83,8 @@ watch(dict_list, (val) => {
   if (!val.length) return
   let cet4 = val.find(v => v.id === 'cet4')
   if (!cet4) return
-  _nextTick(() => {
+  _nextTick(async () => {
+    const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD);
     const tour = new Shepherd.Tour(TourConfig);
     tour.on('cancel', () => {
       localStorage.setItem('tour-guide', '1');

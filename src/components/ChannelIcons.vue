@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { APP_NAME, GITHUB, Origin } from "@/config/env.ts";
+import { APP_NAME, GITHUB, LIB_JS_URL, Origin } from "@/config/env.ts";
 import BaseIcon from "@/components/BaseIcon.vue";
 import { defineAsyncComponent, watch } from "vue";
 import { usePracticeStore } from "@/stores/practice.ts";
 import { useBaseStore } from "@/stores/base.ts";
-import { msToHourMinute } from "@/utils";
+import { loadJsLib, msToHourMinute } from "@/utils";
 import dayjs from "dayjs";
 import Toast from "@/components/base/toast/Toast.ts";
 import { useUserStore } from "@/stores/user.ts";
 import Progress from "@/components/base/Progress.vue";
-import { snapdom } from "@zumer/snapdom";
 
 const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
 
@@ -21,6 +20,8 @@ let showWechatDialog = $ref(false)
 let showXhsDialog = $ref(false)
 let showQQDialog = $ref(false)
 let showShareDialog = $ref(false)
+let loading1 = $ref(false)
+let loading2 = $ref(false)
 let posterEl = $ref<HTMLDivElement | null>(null)
 
 // 计算学习统计数据
@@ -47,6 +48,8 @@ watch(() => showShareDialog, (newVal) => {
 // 复制图片到剪贴板
 async function copyImageToClipboard() {
   try {
+    loading1 = true
+    const snapdom = await loadJsLib('snapdom',LIB_JS_URL.SNAPDOM);
     const blob = await snapdom.toBlob(posterEl, {scale: 2, type: 'png'})
     if (!blob) throw new Error('capture failed')
 
@@ -59,12 +62,17 @@ async function copyImageToClipboard() {
   } catch (error) {
     Toast.error('复制失败！')
     await downloadImage()
+  } finally {
+    loading1 = false
   }
 }
 
 // 下载图片
 async function downloadImage() {
+  loading2 = true
+  const snapdom = await loadJsLib('snapdom',LIB_JS_URL.SNAPDOM);
   snapdom.download(posterEl, {scale: 2})
+  loading2 = false
 }
 
 let imgIndex = $ref(Math.floor(Math.random() * 10))
@@ -127,7 +135,8 @@ const sentence = $computed(() => {
       <IconFluentShare20Regular class="text-blue-500 hover:text-blue-600"/>
     </BaseIcon>
 
-    <a :href="GITHUB" target="_blank" rel="noreferrer" aria-label="GITHUB 项目地址" class="color-[--color-reverse-black]">
+    <a :href="GITHUB" target="_blank" rel="noreferrer" aria-label="GITHUB 项目地址"
+       class="color-[--color-reverse-black]">
       <BaseIcon>
         <IconSimpleIconsGithub/>
       </BaseIcon>
@@ -264,13 +273,15 @@ const sentence = $computed(() => {
           <!-- 分享战绩 -->
           <div @click="copyImageToClipboard"
                class="flex items-center justify-start gap-space px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white cp rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200">
-            <IconFluentCopy20Regular class="w-5 h-5"/>
+            <IconEosIconsLoading class="text-xl" v-if="loading1"/>
+            <IconFluentCopy20Regular class="w-5 h-5" v-else/>
             <span class="font-medium">复制到剪贴板</span>
           </div>
 
           <div @click="downloadImage"
                class="flex items-center justify-start gap-space px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white cp rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200">
-            <IconFluentArrowDownload20Regular class="w-5 h-5"/>
+            <IconEosIconsLoading class="text-xl" v-if="loading2"/>
+            <IconFluentArrowDownload20Regular class="w-5 h-5" v-else/>
             <span class="font-medium">保存高清海报</span>
           </div>
         </div>

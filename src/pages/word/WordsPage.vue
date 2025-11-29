@@ -2,10 +2,19 @@
 import { useBaseStore } from "@/stores/base.ts";
 import { useRouter } from "vue-router";
 import BaseIcon from "@/components/BaseIcon.vue";
-import {_getAccomplishDate, _getDictDataByUrl, _nextTick, isMobile, resourceWrap, shuffle, useNav} from "@/utils";
+import {
+  _getAccomplishDate,
+  _getDictDataByUrl,
+  _nextTick,
+  isMobile,
+  loadJsLib,
+  resourceWrap,
+  shuffle,
+  useNav
+} from "@/utils";
 import BasePage from "@/components/BasePage.vue";
 import { DictResource, WordPracticeMode } from "@/types/types.ts";
-import { onMounted, watch } from "vue";
+import { watch } from "vue";
 import { getCurrentStudyWord } from "@/hooks/dict.ts";
 import { useRuntimeStore } from "@/stores/runtime.ts";
 import Book from "@/components/Book.vue";
@@ -19,11 +28,11 @@ import PracticeSettingDialog from "@/pages/word/components/PracticeSettingDialog
 import ChangeLastPracticeIndexDialog from "@/pages/word/components/ChangeLastPracticeIndexDialog.vue";
 import { useSettingStore } from "@/stores/setting.ts";
 import { useFetch } from "@vueuse/core";
-import { AppEnv, DICT_LIST, Host, PracticeSaveWordKey, TourConfig } from "@/config/env.ts";
+import { AppEnv, DICT_LIST, Host, LIB_JS_URL, PracticeSaveWordKey, TourConfig } from "@/config/env.ts";
 import { myDictList } from "@/apis";
 import PracticeWordListDialog from "@/pages/word/components/PracticeWordListDialog.vue";
 import ShufflePracticeSettingDialog from "@/pages/word/components/ShufflePracticeSettingDialog.vue";
-import Shepherd from "shepherd.js";
+import SettingDialog from "@/pages/word/components/SettingDialog.vue";
 
 
 const store = useBaseStore()
@@ -42,7 +51,35 @@ let currentStudy = $ref({
 })
 
 watch(() => store.load, n => {
-  if (n) init()
+  if (n) {
+    init()
+    _nextTick(async () => {
+      const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD);
+      const tour = new Shepherd.Tour(TourConfig);
+      tour.on('cancel', () => {
+        localStorage.setItem('tour-guide', '1');
+      });
+      tour.addStep({
+        id: 'step1',
+        text: '点击这里选择一本词典开始学习',
+        attachTo: {
+          element: '#step1',
+          on: 'bottom'
+        },
+        buttons: [
+          {
+            text: `下一步（1/${TourConfig.total}）`,
+            action() {
+              tour.next()
+              router.push('/dict-list')
+            }
+          }
+        ]
+      });
+      const r = localStorage.getItem('tour-guide');
+      if (settingStore.first && !r && !isMobile()) tour.start();
+    }, 500)
+  }
 }, {immediate: true})
 
 async function init() {
@@ -200,33 +237,6 @@ const {
 
 let isNewHost = $ref(window.location.host === Host)
 
-onMounted(() => {
-  _nextTick(() => {
-    const tour = new Shepherd.Tour(TourConfig);
-    tour.on('cancel', () => {
-      localStorage.setItem('tour-guide', '1');
-    });
-    tour.addStep({
-      id: 'step1',
-      text: '点击这里选择一本词典开始学习',
-      attachTo: {
-        element: '#step1',
-        on: 'bottom'
-      },
-      buttons: [
-        {
-          text: `下一步（1/${TourConfig.total}）`,
-          action() {
-            tour.next()
-            router.push('/dict-list')
-          }
-        }
-      ]
-    });
-    const r = localStorage.getItem('tour-guide');
-    if (settingStore.first && !r && !isMobile()) tour.start();
-  }, 500)
-})
 </script>
 
 <template>
@@ -235,6 +245,8 @@ onMounted(() => {
       新域名已启用，后续请访问 <a href="https://typewords.cc/words?from_old_site=1">https://typewords.cc</a>。当前
       2study.top 域名将在不久后停止使用
     </div>
+
+<!--    <SettingDialog/>-->
 
     <div class="card flex flex-col md:flex-row gap-8">
       <div class="flex-1 w-full flex flex-col justify-between">

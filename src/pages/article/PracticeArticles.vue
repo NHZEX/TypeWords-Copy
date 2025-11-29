@@ -18,7 +18,7 @@ import {
 import { useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener } from "@/hooks/event.ts";
 import useTheme from "@/hooks/theme.ts";
 import Toast from '@/components/base/toast/Toast.ts'
-import {_getDictDataByUrl, _nextTick, cloneDeep, isMobile, msToMinute, resourceWrap, total} from "@/utils";
+import { _getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, msToMinute, resourceWrap, total } from "@/utils";
 import { usePracticeStore } from "@/stores/practice.ts";
 import { useArticleOptions } from "@/hooks/dict.ts";
 import { genArticleSectionData, usePlaySentenceAudio } from "@/hooks/article.ts";
@@ -34,10 +34,9 @@ import { useRoute, useRouter } from "vue-router";
 import PracticeLayout from "@/components/PracticeLayout.vue";
 import ArticleAudio from "@/pages/article/components/ArticleAudio.vue";
 import VolumeSetting from "@/pages/article/components/VolumeSetting.vue";
-import { AppEnv, DICT_LIST, PracticeSaveArticleKey, TourConfig } from "@/config/env.ts";
+import { AppEnv, DICT_LIST, LIB_JS_URL, PracticeSaveArticleKey, TourConfig } from "@/config/env.ts";
 import { addStat, setDictProp } from "@/apis";
 import { useRuntimeStore } from "@/stores/runtime.ts";
-import Shepherd from "shepherd.js";
 
 const store = useBaseStore()
 const runtimeStore = useRuntimeStore()
@@ -160,7 +159,8 @@ watch([() => store.load, () => loading], ([a, b]) => {
 
 watch(() => articleData?.article?.id, id => {
   if (id) {
-    _nextTick(() => {
+    _nextTick(async () => {
+      const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD);
       const tour = new Shepherd.Tour(TourConfig);
       tour.on('cancel', () => {
         localStorage.setItem('tour-guide', '1');
@@ -295,19 +295,7 @@ function setArticle(val: Article) {
   }, 1000)
 
   _nextTick(typingArticleRef?.init)
-
-  window.umami?.track('startStudyArticle', {
-    name: store.sbook.name,
-    index: store.sbook.lastLearnIndex,
-    custom: store.sbook.custom,
-    complete: store.sbook.complete,
-    title: articleData.article.title,
-  })
 }
-
-watch(() => articleData.article.id, n => {
-  console.log('articleData.article.id', n)
-})
 
 async function complete() {
   clearInterval(timer)

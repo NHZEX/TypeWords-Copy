@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import {nextTick, onMounted, ref, watch} from "vue";
-import {useSettingStore} from "@/stores/setting.ts";
-import {getAudioFileUrl, usePlayAudio} from "@/hooks/sound.ts";
-import {getShortcutKey, useEventListener} from "@/hooks/event.ts";
-import {checkAndUpgradeSaveDict, checkAndUpgradeSaveSetting, cloneDeep, loadJsLib, shakeCommonDict} from "@/utils";
-import {DefaultShortcutKeyMap, ShortcutKey, WordPracticeMode} from "@/types/types.ts";
+import { nextTick, onMounted, ref, watch } from "vue";
+import { useSettingStore } from "@/stores/setting.ts";
+import { getAudioFileUrl, usePlayAudio } from "@/hooks/sound.ts";
+import { getShortcutKey, useEventListener } from "@/hooks/event.ts";
+import { checkAndUpgradeSaveDict, checkAndUpgradeSaveSetting, cloneDeep, loadJsLib, shakeCommonDict } from "@/utils";
+import { DefaultShortcutKeyMap, ShortcutKey, WordPracticeMode } from "@/types/types.ts";
 import BaseButton from "@/components/BaseButton.vue";
 import VolumeIcon from "@/components/icon/VolumeIcon.vue";
-import {useBaseStore} from "@/stores/base.ts";
-import {saveAs} from "file-saver";
+import { useBaseStore } from "@/stores/base.ts";
+import { saveAs } from "file-saver";
 import {
   APP_NAME, APP_VERSION, EMAIL,
   EXPORT_DATA_KEY, GITHUB, Host,
@@ -20,7 +20,7 @@ import {
 import dayjs from "dayjs";
 import BasePage from "@/components/BasePage.vue";
 import Toast from '@/components/base/toast/Toast.ts'
-import {Option, Select} from "@/components/base/select";
+import { Option, Select } from "@/components/base/select";
 import Switch from "@/components/base/Switch.vue";
 import Slider from "@/components/base/Slider.vue";
 import RadioGroup from "@/components/base/radio/RadioGroup.vue";
@@ -29,10 +29,10 @@ import InputNumber from "@/components/base/InputNumber.vue";
 import PopConfirm from "@/components/PopConfirm.vue";
 import Textarea from "@/components/base/Textarea.vue";
 import SettingItem from "@/pages/setting/SettingItem.vue";
-import {get, set} from "idb-keyval";
-import {useRuntimeStore} from "@/stores/runtime.ts";
-import {useUserStore} from "@/stores/user.ts";
-import {useExport} from "@/hooks/export.ts";
+import { get, set } from "idb-keyval";
+import { useRuntimeStore } from "@/stores/runtime.ts";
+import { useUserStore } from "@/stores/user.ts";
+import { useExport } from "@/hooks/export.ts";
 import MigrateDialog from "@/components/MigrateDialog.vue";
 
 const emit = defineEmits<{
@@ -99,7 +99,7 @@ useEventListener('keydown', (e: KeyboardEvent) => {
     } else {
       // 忽略单独的修饰键
       if (shortcutKey === 'Ctrl+' || shortcutKey === 'Alt+' || shortcutKey === 'Shift+' ||
-        e.key === 'Control' || e.key === 'Alt' || e.key === 'Shift') {
+          e.key === 'Control' || e.key === 'Alt' || e.key === 'Shift') {
         return;
       }
 
@@ -269,7 +269,7 @@ async function importData(e) {
 
       Toast.success("导入成功！");
     } catch (e) {
-      Toast.error("导入失败！");
+      Toast.error(e?.message || e || '导入失败')
     } finally {
       importLoading = false
     }
@@ -278,32 +278,10 @@ async function importData(e) {
   }
 }
 
-function importOldData() {
-  exportData('已为您自动保存当前数据！稍后将进行老数据导入操作')
-  setTimeout(() => {
-    let oldDataStr = localStorage.getItem('type-word-dict-v3')
-    if (oldDataStr) {
-      try {
-        let obj = JSON.parse(oldDataStr)
-        let data = {
-          version: 3,
-          val: obj
-        }
-        let baseState = checkAndUpgradeSaveDict(data)
-        store.setState(baseState)
-        Toast.success('导入成功')
-      } catch (err) {
-        Toast.error('导入失败')
-      }
-    } else {
-      Toast.error('导入失败！原因：本地无老数据备份')
-    }
-  }, 1000)
-}
-
 let isNewHost = $ref(window.location.host === Host)
 
 let showTransfer = $ref(false)
+
 function transferOk() {
   setTimeout(() => {
     window.location.href = '/words'
@@ -313,530 +291,529 @@ function transferOk() {
 
 <template>
   <BasePage>
-    <div class="setting text-md">
-      <div class="left mt-10">
-        <div class="tabs">
-          <div class="tab" :class="tabIndex === 0 && 'active'" @click="tabIndex = 0">
-            <IconFluentSettings20Regular width="20"/>
-            <span>通用练习设置</span>
-          </div>
-          <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1">
-            <IconFluentTextUnderlineDouble20Regular width="20"/>
-            <span>单词练习设置</span>
-          </div>
-          <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2">
-            <IconFluentBookLetter20Regular width="20"/>
-            <span>文章练习设置</span>
-          </div>
-          <div class="tab" :class="tabIndex === 3 && 'active'" @click="tabIndex = 3">
-            <IconFluentKeyboardLayoutFloat20Regular width="20"/>
-            <span>快捷键设置</span>
-          </div>
-          <div class="tab" :class="tabIndex === 4 && 'active'" @click="tabIndex = 4">
-            <IconFluentDatabasePerson20Regular width="20"/>
-            <span>数据管理</span>
-          </div>
-          <div class="tab" :class="tabIndex === 5 && 'active'" @click="()=>{
+    <div class="setting text-md card flex flex-col" style="height: calc(100vh - 3rem);">
+      <div class="page-title text-align-center">设置</div>
+      <div class="flex flex-1 overflow-hidden gap-4">
+        <div class="left">
+          <div class="tabs">
+            <div class="tab" :class="tabIndex === 0 && 'active'" @click="tabIndex = 0">
+              <IconFluentSettings20Regular width="20"/>
+              <span>通用练习设置</span>
+            </div>
+            <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1">
+              <IconFluentTextUnderlineDouble20Regular width="20"/>
+              <span>单词练习设置</span>
+            </div>
+            <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2">
+              <IconFluentBookLetter20Regular width="20"/>
+              <span>文章练习设置</span>
+            </div>
+            <div class="tab" :class="tabIndex === 3 && 'active'" @click="tabIndex = 3">
+              <IconFluentKeyboardLayoutFloat20Regular width="20"/>
+              <span>快捷键设置</span>
+            </div>
+            <div class="tab" :class="tabIndex === 4 && 'active'" @click="tabIndex = 4">
+              <IconFluentDatabasePerson20Regular width="20"/>
+              <span>数据管理</span>
+            </div>
+            <div class="tab" :class="tabIndex === 5 && 'active'" @click="()=>{
             tabIndex = 5
             runtimeStore.isNew = false
             set(APP_VERSION.key,APP_VERSION.version)
           }">
-            <IconFluentTextBulletListSquare20Regular width="20"/>
-            <span>更新日志</span>
-            <div class="red-point" v-if="runtimeStore.isNew"></div>
-          </div>
-          <div class="tab" :class="tabIndex === 6 && 'active'" @click="tabIndex = 6">
-            <IconFluentPerson20Regular width="20"/>
-            <span>关于</span>
+              <IconFluentTextBulletListSquare20Regular width="20"/>
+              <span>更新日志</span>
+              <div class="red-point" v-if="runtimeStore.isNew"></div>
+            </div>
+            <div class="tab" :class="tabIndex === 6 && 'active'" @click="tabIndex = 6">
+              <IconFluentPerson20Regular width="20"/>
+              <span>关于</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="content">
-        <div class="page-title text-align-center">设置</div>
-        <!--        通用练习设置-->
-        <!--        通用练习设置-->
-        <!--        通用练习设置-->
-        <div v-if="tabIndex === 0">
-          <SettingItem title="忽略大小写"
-                       desc="开启后，输入时不区分大小写，如输入“hello”和“Hello”都会被认为是正确的"
-          >
-            <Switch v-model="settingStore.ignoreCase"/>
-          </SettingItem>
+        <div class="col-line"></div>
+        <div class="flex-1  overflow-y-auto overflow-x-hidden pr-4 content">
+          <!--        通用练习设置-->
+          <!--        通用练习设置-->
+          <!--        通用练习设置-->
+          <div v-if="tabIndex === 0">
+            <SettingItem title="忽略大小写"
+                         desc="开启后，输入时不区分大小写，如输入“hello”和“Hello”都会被认为是正确的"
+            >
+              <Switch v-model="settingStore.ignoreCase"/>
+            </SettingItem>
 
-          <SettingItem title="允许默写模式下显示提示"
-                       :desc="`开启后，可以通过将鼠标移动到单词上或者按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示正确答案`"
-          >
-            <Switch v-model="settingStore.allowWordTip"/>
-          </SettingItem>
+            <SettingItem title="允许默写模式下显示提示"
+                         :desc="`开启后，可以通过将鼠标移动到单词上或者按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示正确答案`"
+            >
+              <Switch v-model="settingStore.allowWordTip"/>
+            </SettingItem>
 
-          <div class="line"></div>
-          <SettingItem title="简单词过滤"
-                       desc="开启后，练习的单词中不会包含简单词；文章统计的总词数中不会包含简单词"
-          >
-            <Switch v-model="settingStore.ignoreSimpleWord"/>
-          </SettingItem>
+            <div class="line"></div>
+            <SettingItem title="简单词过滤"
+                         desc="开启后，练习的单词中不会包含简单词；文章统计的总词数中不会包含简单词"
+            >
+              <Switch v-model="settingStore.ignoreSimpleWord"/>
+            </SettingItem>
 
-          <SettingItem title="简单词列表"
-                       class="items-start!"
-                       v-if="settingStore.ignoreSimpleWord"
-          >
+            <SettingItem title="简单词列表"
+                         class="items-start!"
+                         v-if="settingStore.ignoreSimpleWord"
+            >
             <Textarea
-              placeholder="多个单词用英文逗号隔号"
-              v-model="simpleWords" :autosize="{minRows: 6, maxRows: 10}"/>
-          </SettingItem>
+                placeholder="多个单词用英文逗号隔号"
+                v-model="simpleWords" :autosize="{minRows: 6, maxRows: 10}"/>
+            </SettingItem>
 
-          <!--          音效-->
-          <!--          音效-->
-          <!--          音效-->
-          <div class="line"></div>
-          <SettingItem main-title="音效"/>
-          <SettingItem title="单词/句子发音口音">
-            <Select v-model="settingStore.soundType"
-                    placeholder="请选择"
-                    class="w-50!"
-            >
-              <Option label="美音" value="us"/>
-              <Option label="英音" value="uk"/>
-            </Select>
-          </SettingItem>
-
-          <div class="line"></div>
-          <SettingItem title="按键音">
-            <Switch v-model="settingStore.keyboardSound"/>
-          </SettingItem>
-          <SettingItem title="按键音效">
-            <Select v-model="settingStore.keyboardSoundFile"
-                    placeholder="请选择"
-                    class="w-50!"
-            >
-              <Option
-                v-for="item in SoundFileOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+            <!--          音效-->
+            <!--          音效-->
+            <!--          音效-->
+            <div class="line"></div>
+            <SettingItem main-title="音效"/>
+            <SettingItem title="单词/句子发音口音">
+              <Select v-model="settingStore.soundType"
+                      placeholder="请选择"
+                      class="w-50!"
               >
-                <div class="flex justify-between items-center w-full">
-                  <span>{{ item.label }}</span>
-                  <VolumeIcon
-                    :time="100"
-                    @click="usePlayAudio(getAudioFileUrl(item.value)[0])"/>
-                </div>
-              </Option>
-            </Select>
-          </SettingItem>
-          <SettingItem title="音量">
-            <Slider v-model="settingStore.keyboardSoundVolume"/>
-            <span class="w-10 pl-5">{{ settingStore.keyboardSoundVolume }}%</span>
-          </SettingItem>
+                <Option label="美音" value="us"/>
+                <Option label="英音" value="uk"/>
+              </Select>
+            </SettingItem>
 
-          <div class="line"></div>
-          <SettingItem title="效果音（输入错误、完成时的音效）">
-            <Switch v-model="settingStore.effectSound"/>
-          </SettingItem>
-          <SettingItem title="音量">
-            <Slider v-model="settingStore.effectSoundVolume"/>
-            <span class="w-10 pl-5">{{ settingStore.effectSoundVolume }}%</span>
-          </SettingItem>
-        </div>
+            <div class="line"></div>
+            <SettingItem title="按键音">
+              <Switch v-model="settingStore.keyboardSound"/>
+            </SettingItem>
+            <SettingItem title="按键音效">
+              <Select v-model="settingStore.keyboardSoundFile"
+                      placeholder="请选择"
+                      class="w-50!"
+              >
+                <Option
+                    v-for="item in SoundFileOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                >
+                  <div class="flex justify-between items-center w-full">
+                    <span>{{ item.label }}</span>
+                    <VolumeIcon
+                        :time="100"
+                        @click="usePlayAudio(getAudioFileUrl(item.value)[0])"/>
+                  </div>
+                </Option>
+              </Select>
+            </SettingItem>
+            <SettingItem title="音量">
+              <Slider v-model="settingStore.keyboardSoundVolume" showText showValue unit="%"/>
+            </SettingItem>
+
+          </div>
 
 
-        <!--        单词练习设置-->
-        <!--        单词练习设置-->
-        <!--        单词练习设置-->
-        <div v-if="tabIndex === 1">
-          <SettingItem title="练习模式">
-            <RadioGroup v-model="settingStore.wordPracticeMode" class="flex-col gap-0!">
-              <Radio :value="WordPracticeMode.System" label="智能模式，系统自动计算复习单词与默写单词"/>
-              <Radio :value="WordPracticeMode.Free" label="自由模式，系统不强制复习与默写"/>
-            </RadioGroup>
-          </SettingItem>
+          <!--        单词练习设置-->
+          <!--        单词练习设置-->
+          <!--        单词练习设置-->
+          <div v-if="tabIndex === 1">
+            <SettingItem title="练习模式">
+              <RadioGroup v-model="settingStore.wordPracticeMode" class="flex-col gap-0!">
+                <Radio :value="WordPracticeMode.System" label="智能模式:自动规划学习、复习、听写、默写"/>
+                <Radio :value="WordPracticeMode.Free" label="自由模式:系统不强制复习与默写"/>
+              </RadioGroup>
+            </SettingItem>
 
-          <SettingItem title="显示上一个/下一个单词"
-                       desc="开启后，练习中会在上方显示上一个/下一个单词"
-          >
-            <Switch v-model="settingStore.showNearWord"/>
-          </SettingItem>
+            <SettingItem title="显示上一个/下一个单词"
+                         desc="开启后，练习中会在上方显示上一个/下一个单词"
+            >
+              <Switch v-model="settingStore.showNearWord"/>
+            </SettingItem>
 
-          <SettingItem title="不默认显示练习设置弹框"
-                       desc="在词典详情页面，点击学习按钮后，是否显示练习设置弹框"
-          >
-            <Switch v-model="settingStore.disableShowPracticeSettingDialog"/>
-          </SettingItem>
+            <SettingItem title="不默认显示练习设置弹框"
+                         desc="在词典详情页面，点击学习按钮后，是否显示练习设置弹框"
+            >
+              <Switch v-model="settingStore.disableShowPracticeSettingDialog"/>
+            </SettingItem>
 
-          <SettingItem title="输入错误时，清空已输入内容"
-          >
-            <Switch v-model="settingStore.inputWrongClear"/>
-          </SettingItem>
+            <SettingItem title="输入错误时，清空已输入内容"
+            >
+              <Switch v-model="settingStore.inputWrongClear"/>
+            </SettingItem>
 
-          <SettingItem title="单词循环设置" class="gap-0!">
-            <RadioGroup v-model="settingStore.repeatCount">
-              <Radio :value="1" size="default">1</Radio>
-              <Radio :value="2" size="default">2</Radio>
-              <Radio :value="3" size="default">3</Radio>
-              <Radio :value="5" size="default">5</Radio>
-              <Radio :value="100" size="default">自定义</Radio>
-            </RadioGroup>
-            <div class="ml-2 center gap-space" v-if="settingStore.repeatCount === 100">
-              <span>循环次数</span>
-              <InputNumber v-model="settingStore.repeatCustomCount"
-                           :min="6"
-                           :max="15"
+            <SettingItem title="单词循环设置" class="gap-0!">
+              <RadioGroup v-model="settingStore.repeatCount">
+                <Radio :value="1" size="default">1</Radio>
+                <Radio :value="2" size="default">2</Radio>
+                <Radio :value="3" size="default">3</Radio>
+                <Radio :value="5" size="default">5</Radio>
+                <Radio :value="100" size="default">自定义</Radio>
+              </RadioGroup>
+              <div class="ml-2 center gap-space" v-if="settingStore.repeatCount === 100">
+                <span>循环次数</span>
+                <InputNumber v-model="settingStore.repeatCustomCount"
+                             :min="6"
+                             :max="15"
+                             type="number"
+                />
+              </div>
+            </SettingItem>
+
+
+            <!--          发音-->
+            <!--          发音-->
+            <!--          发音-->
+            <div class="line"></div>
+            <SettingItem mainTitle="音效"/>
+            <SettingItem title="单词自动发音">
+              <Switch v-model="settingStore.wordSound"/>
+            </SettingItem>
+            <SettingItem title="音量">
+              <Slider v-model="settingStore.wordSoundVolume" showText showValue unit="%"/>
+            </SettingItem>
+            <SettingItem title="倍速">
+              <Slider v-model="settingStore.wordSoundSpeed" :step="0.1" :min="0.5" :max="3" showText showValue/>
+            </SettingItem>
+            <div class="line"></div>
+            <SettingItem title="效果音（输入错误、完成时的音效）">
+              <Switch v-model="settingStore.effectSound"/>
+            </SettingItem>
+            <SettingItem title="音量">
+              <Slider v-model="settingStore.effectSoundVolume" showText showValue unit="%"/>
+            </SettingItem>
+
+            <!--          自动切换-->
+            <!--          自动切换-->
+            <!--          自动切换-->
+            <div class="line"></div>
+            <SettingItem mainTitle="自动切换"/>
+            <SettingItem title="自动切换下一个单词"
+                         desc="仅在 **跟写** 时生效，听写、辨认、默写均不会自动切换，需要手动按 **空格键** 切换"
+            >
+              <Switch v-model="settingStore.autoNextWord"/>
+            </SettingItem>
+
+            <SettingItem title="自动切换下一个单词时间"
+                         desc="正确输入单词后，自动跳转下一个单词的时间"
+            >
+              <InputNumber v-model="settingStore.waitTimeForChangeWord"
+                           :disabled="!settingStore.autoNextWord"
+                           :min="0"
+                           :max="10000"
+                           :step="100"
                            type="number"
               />
-            </div>
-          </SettingItem>
+              <span class="ml-4">毫秒</span>
+            </SettingItem>
 
 
-          <!--          发音-->
-          <!--          发音-->
-          <!--          发音-->
-          <div class="line"></div>
-          <SettingItem mainTitle="音效"/>
-          <SettingItem title="自动发音">
-            <Switch v-model="settingStore.wordSound"/>
-          </SettingItem>
-          <SettingItem title="音量">
-            <Slider v-model="settingStore.wordSoundVolume"/>
-            <span class="w-10 pl-5">{{ settingStore.wordSoundVolume }}%</span>
-          </SettingItem>
-          <SettingItem title="倍速">
-            <Slider v-model="settingStore.wordSoundSpeed" :step="0.1" :min="0.5" :max="3"/>
-            <span class="w-10 pl-5">{{ settingStore.wordSoundSpeed }}</span>
-          </SettingItem>
-
-
-          <!--          自动切换-->
-          <!--          自动切换-->
-          <!--          自动切换-->
-          <div class="line"></div>
-          <SettingItem mainTitle="自动切换"/>
-          <SettingItem title="自动切换下一个单词"
-                       desc="仅在 **跟写** 时生效，听写、辨认、默写均不会自动切换，需要手动按 **空格键** 切换"
-          >
-            <Switch v-model="settingStore.autoNextWord"/>
-          </SettingItem>
-
-          <SettingItem title="自动切换下一个单词时间"
-                       desc="正确输入单词后，自动跳转下一个单词的时间"
-          >
-            <InputNumber v-model="settingStore.waitTimeForChangeWord"
-                         :disabled="!settingStore.autoNextWord"
-                         :min="0"
-                         :max="10000"
-                         :step="100"
-                         type="number"
-            />
-            <span class="ml-4">毫秒</span>
-          </SettingItem>
-
-
-          <!--          字体设置-->
-          <!--          字体设置-->
-          <!--          字体设置-->
-          <div class="line"></div>
-          <SettingItem mainTitle="字体设置"/>
-          <SettingItem title="外语字体">
-            <Slider
-              :min="10"
-              :max="100"
-              v-model="settingStore.fontSize.wordForeignFontSize"/>
-            <span class="w-10 pl-5">{{ settingStore.fontSize.wordForeignFontSize }}px</span>
-          </SettingItem>
-          <SettingItem title="中文字体">
-            <Slider
-              :min="10"
-              :max="100"
-              v-model="settingStore.fontSize.wordTranslateFontSize"/>
-            <span class="w-10 pl-5">{{ settingStore.fontSize.wordTranslateFontSize }}px</span>
-          </SettingItem>
-        </div>
-
-
-        <!--        文章练习设置-->
-        <!--        文章练习设置-->
-        <!--        文章练习设置-->
-        <div v-if="tabIndex === 2">
-          <!--          发音-->
-          <!--          发音-->
-          <!--          发音-->
-          <SettingItem mainTitle="音效"/>
-          <SettingItem title="自动播放句子">
-            <Switch v-model="settingStore.articleSound"/>
-          </SettingItem>
-          <SettingItem title="自动播放下一篇">
-            <Switch v-model="settingStore.articleAutoPlayNext"/>
-          </SettingItem>
-          <SettingItem title="音量">
-            <Slider v-model="settingStore.articleSoundVolume"/>
-            <span class="w-10 pl-5">{{ settingStore.articleSoundVolume }}%</span>
-          </SettingItem>
-          <SettingItem title="倍速">
-            <Slider v-model="settingStore.articleSoundSpeed" :step="0.1" :min="0.5" :max="3"/>
-            <span class="w-10 pl-5">{{ settingStore.articleSoundSpeed }}</span>
-          </SettingItem>
-
-          <div class="line"></div>
-          <SettingItem title="输入时忽略符号/数字/人名">
-            <Switch v-model="settingStore.ignoreSymbol"/>
-          </SettingItem>
-        </div>
-
-        <div class="body" v-if="tabIndex === 3">
-          <div class="row">
-            <label class="main-title">功能</label>
-            <div class="wrapper">快捷键(点击可修改)</div>
+            <!--          字体设置-->
+            <!--          字体设置-->
+            <!--          字体设置-->
+            <div class="line"></div>
+            <SettingItem mainTitle="字体设置"/>
+            <SettingItem title="外语字体">
+              <Slider
+                  :min="10"
+                  :max="100"
+                  v-model="settingStore.fontSize.wordForeignFontSize" showText showValue unit="px"/>
+            </SettingItem>
+            <SettingItem title="中文字体">
+              <Slider
+                  :min="10"
+                  :max="100"
+                  v-model="settingStore.fontSize.wordTranslateFontSize" showText showValue unit="px"/>
+            </SettingItem>
           </div>
-          <div class="scroll">
-            <div class="row" v-for="item of Object.entries(settingStore.shortcutKeyMap)">
-              <label class="item-title">{{ getShortcutKeyName(item[0]) }}</label>
-              <div class="wrapper" @click="editShortcutKey = item[0]">
-                <div class="set-key" v-if="editShortcutKey === item[0]">
-                  <input ref="shortcutInput" :value="item[1]?item[1]:'未设置快捷键'" readonly type="text"
-                         @blur="handleInputBlur">
-                  <span @click.stop="editShortcutKey = ''">按键盘进行设置，<span
-                    class="text-red!">设置完成点击这里</span></span>
-                </div>
-                <div v-else>
-                  <div v-if="item[1]">{{ item[1] }}</div>
-                  <span v-else>未设置快捷键</span>
+
+
+          <!--        文章练习设置-->
+          <!--        文章练习设置-->
+          <!--        文章练习设置-->
+          <div v-if="tabIndex === 2">
+            <!--          发音-->
+            <!--          发音-->
+            <!--          发音-->
+            <SettingItem mainTitle="音效"/>
+            <SettingItem title="自动播放句子">
+              <Switch v-model="settingStore.articleSound"/>
+            </SettingItem>
+            <SettingItem title="自动播放下一篇">
+              <Switch v-model="settingStore.articleAutoPlayNext"/>
+            </SettingItem>
+            <SettingItem title="音量">
+              <Slider v-model="settingStore.articleSoundVolume" showText showValue unit="%"/>
+            </SettingItem>
+            <SettingItem title="倍速">
+              <Slider v-model="settingStore.articleSoundSpeed" :step="0.1" :min="0.5" :max="3" showText showValue/>
+            </SettingItem>
+
+            <div class="line"></div>
+            <SettingItem title="输入时忽略符号/数字/人名">
+              <Switch v-model="settingStore.ignoreSymbol"/>
+            </SettingItem>
+          </div>
+
+          <div class="body" v-if="tabIndex === 3">
+            <div class="row">
+              <label class="main-title">功能</label>
+              <div class="wrapper">快捷键(点击可修改)</div>
+            </div>
+            <div class="scroll">
+              <div class="row" v-for="item of Object.entries(settingStore.shortcutKeyMap)">
+                <label class="item-title">{{ getShortcutKeyName(item[0]) }}</label>
+                <div class="wrapper" @click="editShortcutKey = item[0]">
+                  <div class="set-key" v-if="editShortcutKey === item[0]">
+                    <input ref="shortcutInput" :value="item[1]?item[1]:'未设置快捷键'" readonly type="text"
+                           @blur="handleInputBlur">
+                    <span @click.stop="editShortcutKey = ''">按键盘进行设置，<span
+                        class="text-red!">设置完成点击这里</span></span>
+                  </div>
+                  <div v-else>
+                    <div v-if="item[1]">{{ item[1] }}</div>
+                    <span v-else>未设置快捷键</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <label class="item-title"></label>
-            <div class="wrapper">
-              <BaseButton @click="resetShortcutKeyMap">恢复默认</BaseButton>
+            <div class="row">
+              <label class="item-title"></label>
+              <div class="wrapper">
+                <BaseButton @click="resetShortcutKeyMap">恢复默认</BaseButton>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div v-if="tabIndex === 4">
-          <div>
-            目前用户的所有数据
-            <b class="text-red">仅保存在本地</b>。如果您需要在不同的设备、浏览器或者其他非官方部署上使用 {{ APP_NAME }}，
-            您需要手动进行数据同步和保存。
-          </div>
-          <BaseButton :loading="exportLoading" class="mt-3" @click="exportData()">导出数据</BaseButton>
-
-          <div class="line my-3"></div>
-
-          <div>请注意，导入数据后将<b class="text-red"> 完全覆盖 </b>当前所有数据，请谨慎操作。
-          </div>
-          <div class="flex gap-space mt-3">
-            <div class="import hvr-grow">
-              <BaseButton :loading="importLoading">导入数据</BaseButton>
-              <input type="file"
-                     accept="application/json,.zip,application/zip"
-                     @change="importData">
+          <div v-if="tabIndex === 4">
+            <div>
+              目前用户的所有数据
+              <b class="text-red">仅保存在本地</b>。如果您需要在不同的设备、浏览器或者其他非官方部署上使用 {{ APP_NAME }}，
+              您需要手动进行数据同步和保存。
             </div>
-            <PopConfirm
-              title="导入老版本数据前，请先备份当前数据，确定要导入老版本数据吗？"
-              @confirm="importOldData">
-              <BaseButton>老版本数据导入</BaseButton>
-            </PopConfirm>
-          </div>
+            <BaseButton :loading="exportLoading" class="mt-3" @click="exportData()">导出数据</BaseButton>
 
-          <template v-if="isNewHost">
             <div class="line my-3"></div>
-            <div>请注意，如果本地已有使用记录，请先备份当前数据，迁移数据后将<b class="text-red"> 完全覆盖 </b>当前所有数据，请谨慎操作。
+
+            <div>请注意，导入数据后将<b class="text-red"> 完全覆盖 </b>当前所有数据，请谨慎操作。
             </div>
             <div class="flex gap-space mt-3">
-              <BaseButton @click="showTransfer = true">迁移 2study.top 网站数据</BaseButton>
+              <div class="import hvr-grow">
+                <BaseButton :loading="importLoading">导入数据</BaseButton>
+                <input type="file"
+                       accept="application/json,.zip,application/zip"
+                       @change="importData">
+              </div>
             </div>
-          </template>
-        </div>
 
-        <div v-if="tabIndex === 5">
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/11/28</div>
-                <div>内容：新增引导框、新增词典测试模式（大佬 hebeihang 开发）</div>
+            <template v-if="isNewHost">
+              <div class="line my-3"></div>
+              <div>请注意，如果本地已有使用记录，请先备份当前数据，迁移数据后将<b class="text-red"> 完全覆盖 </b>当前所有数据，请谨慎操作。
+              </div>
+              <div class="flex gap-space mt-3">
+                <BaseButton @click="showTransfer = true">迁移 2study.top 网站数据</BaseButton>
+              </div>
+            </template>
+          </div>
+
+          <!--          日志-->
+          <div v-if="tabIndex === 5">
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/11/30</div>
+                  <div>内容：修改 Slider 组件显示bug，新增 IE 浏览器检测提示</div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/11/25</div>
-                <div>内容：文章练习新增人名忽略功能（新概念一已全部适配），上传了新概念（一）1-18 音频</div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/11/28</div>
+                  <div>内容：新增引导框、 新增<a href="https://github.com/zyronon/TypeWords/pull/175" target="_blank">词典测试模式（由大佬
+                    hebeihang 开发）</a></div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/11/23</div>
-                <div>内容：优化练习完成结算界面，新增分享功能</div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/11/25</div>
+                  <div>内容：文章练习新增人名忽略功能（新概念一已全部适配），上传了新概念（一）1-18 音频</div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/11/22</div>
-                <div>内容：适配移动端</div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/11/23</div>
+                  <div>内容：优化练习完成结算界面，新增分享功能</div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/11/16</div>
-                <div>内容：辨认单词时，不认识单词可以直接输入，自动标识为错误单词，无需按2</div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/11/22</div>
+                  <div>内容：适配移动端</div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/11/15</div>
-                <div>内容：练习单词时，底部工具栏新增“跳到下一阶段”按钮</div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/11/16</div>
+                  <div>内容：辨认单词时，不认识单词可以直接输入，自动标识为错误单词，无需按2</div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/11/14</div>
-                <div>内容：新增文章练习时可跳过空格：如果在单词的最后一位上，不按空格直接输入下一个字母的话，自动跳下一个单词，
-                  按空格也自动跳下一个单词
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/11/15</div>
+                  <div>内容：练习单词时，底部工具栏新增“跳到下一阶段”按钮</div>
+                </div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/11/14</div>
+                  <div>内容：新增文章练习时可跳过空格：如果在单词的最后一位上，不按空格直接输入下一个字母的话，自动跳下一个单词，
+                    按空格也自动跳下一个单词
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/11/13</div>
+                  <div>内容：新增文章练习时“输入时忽略符号/数字”选项</div>
+                </div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/11/6</div>
+                  <div>内容：新增随机复习功能</div>
+                </div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/10/30</div>
+                  <div>内容：集成PWA基础配置，支持用户以类App形式打开项目</div>
+                </div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/10/26</div>
+                  <div>内容：进一步完善单词练习，解决复习数量太多的问题</div>
+                </div>
+                <div class="text-base mt-1">
+                  <ol>
+                    <li>
+                      <div class="title"><b>智能模式优化</b></div>
+                      <div class="desc">练习时新增四种练习模式：学习、辨认、听写、默写。</div>
+                    </li>
+                    <li>
+                      <div class="title"><b>学习模式</b></div>
+                      <div class="desc">
+                        <ul>
+                          <li>仅在练习新词时出现。</li>
+                          <li>采用「跟写 / 拼写」方式进行学习。</li>
+                          <li>每 7 个单词会 <b>强制进行听写</b>，解决原来“一次练太多，听写时已忘记”的问题。</li>
+                        </ul>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="title"><b>辨认模式（新增）</b></div>
+                      <div class="desc">
+                        <ul>
+                          <li>仅在复习已学单词时出现。</li>
+                          <li>不再强制拼写，提供「我认识」与「不认识」选项。</li>
+                          <li>选择「我认识」后，该单词在后续听写或默写中将不再出现，<b>显著减少复习数量</b>。</li>
+                        </ul>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="title"><b>听写模式</b></div>
+                      <div class="desc">原有逻辑保持不变。</div>
+                    </li>
+                    <li>
+                      <div class="title"><b>默写模式（新增）</b></div>
+                      <div class="desc">
+                        <ul>
+                          <li>仅显示释义，不自动发音，不显示单词长度。</li>
+                          <li>适合强化拼写记忆的场景。</li>
+                        </ul>
+                      </div>
+                    </li>
+                  </ol>
+                  <b>说明：</b>
+                  <div>本次更新重点解决了“复习单词数量过多、效率偏低”的问题。</div>
+                  <div>通过引入「复习」与「默写」两种模式，使复习流程更加灵活、高效。</div>
+                </div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/10/8</div>
+                  <div>内容：文章支持自动播放下一篇</div>
+                </div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/9/14</div>
+                  <div>内容：完善文章编辑、导入、导出等功能</div>
+                </div>
+                <div class="text-base mt-1">
+                  <div>1、文章的音频管理功能，目前已可添加音频、设置句子与音频的对应位置</div>
+                  <div>2、文章可导入、导出</div>
+                  <div>3、单词可导入、导出</div>
+                </div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/8/10</div>
+                  <div>内容：2.0版本发布，全新UI，全新逻辑，新增短语、例句、近义词等功能</div>
+                </div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/7/19</div>
+                  <div>内容：1.0版本发布</div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/11/13</div>
-                <div>内容：新增文章练习时“输入时忽略符号/数字”选项</div>
-              </div>
-            </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/11/6</div>
-                <div>内容：新增随机复习功能</div>
-              </div>
-            </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/10/30</div>
-                <div>内容：集成PWA基础配置，支持用户以类App形式打开项目</div>
-              </div>
-            </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/10/26</div>
-                <div>内容：进一步完善单词练习，解决复习数量太多的问题</div>
-              </div>
-              <div class="text-base mt-1">
-                <ol>
-                  <li>
-                    <div class="title"><b>智能模式优化</b></div>
-                    <div class="desc">练习时新增四种练习模式：学习、辨认、听写、默写。</div>
-                  </li>
-                  <li>
-                    <div class="title"><b>学习模式</b></div>
-                    <div class="desc">
-                      <ul>
-                        <li>仅在练习新词时出现。</li>
-                        <li>采用「跟写 / 拼写」方式进行学习。</li>
-                        <li>每 7 个单词会 <b>强制进行听写</b>，解决原来“一次练太多，听写时已忘记”的问题。</li>
-                      </ul>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="title"><b>辨认模式（新增）</b></div>
-                    <div class="desc">
-                      <ul>
-                        <li>仅在复习已学单词时出现。</li>
-                        <li>不再强制拼写，提供「我认识」与「不认识」选项。</li>
-                        <li>选择「我认识」后，该单词在后续听写或默写中将不再出现，<b>显著减少复习数量</b>。</li>
-                      </ul>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="title"><b>听写模式</b></div>
-                    <div class="desc">原有逻辑保持不变。</div>
-                  </li>
-                  <li>
-                    <div class="title"><b>默写模式（新增）</b></div>
-                    <div class="desc">
-                      <ul>
-                        <li>仅显示释义，不自动发音，不显示单词长度。</li>
-                        <li>适合强化拼写记忆的场景。</li>
-                      </ul>
-                    </div>
-                  </li>
-                </ol>
-                <b>说明：</b>
-                <div>本次更新重点解决了“复习单词数量过多、效率偏低”的问题。</div>
-                <div>通过引入「复习」与「默写」两种模式，使复习流程更加灵活、高效。</div>
-              </div>
-            </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/10/8</div>
-                <div>内容：文章支持自动播放下一篇</div>
-              </div>
-            </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/9/14</div>
-                <div>内容：完善文章编辑、导入、导出等功能</div>
-              </div>
-              <div class="text-base mt-1">
-                <div>1、文章的音频管理功能，目前已可添加音频、设置句子与音频的对应位置</div>
-                <div>2、文章可导入、导出</div>
-                <div>3、单词可导入、导出</div>
-              </div>
-            </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/8/10</div>
-                <div>内容：2.0版本发布，全新UI，全新逻辑，新增短语、例句、近义词等功能</div>
-              </div>
-            </div>
-          </div>
-          <div class="log-item">
-            <div class="mb-2">
-              <div>
-                <div>日期：2025/7/19</div>
-                <div>内容：1.0版本发布</div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <div v-if="tabIndex === 6" class="center flex-col">
-          <h1>Type Words</h1>
-          <p class="w-100 text-xl">
-            感谢使用本项目！本项目是开源项目，如果觉得有帮助，请在 GitHub 点个 Star，您的支持是我持续改进的动力。
-          </p>
-          <p>
-            GitHub地址：<a :href="GITHUB" target="_blank">{{ GITHUB }}</a>
-          </p>
-          <p>
-            反馈：<a :href="`${GITHUB}/issues`" target="_blank">{{ GITHUB }}/issues</a>
-          </p>
-          <p>
-            作者邮箱：<a :href="`mailto:${EMAIL}`">{{ EMAIL }}</a>
-          </p>
-          <div class="text-md color-gray mt-10">
-            Build {{ gitLastCommitHash }}
+          <div v-if="tabIndex === 6" class="center flex-col">
+            <h1>Type Words</h1>
+            <p class="w-100 text-xl">
+              感谢使用本项目！本项目是开源项目，如果觉得有帮助，请在 GitHub 点个 Star，您的支持是我持续改进的动力。
+            </p>
+            <p>
+              GitHub地址：<a :href="GITHUB" target="_blank">{{ GITHUB }}</a>
+            </p>
+            <p>
+              反馈：<a :href="`${GITHUB}/issues`" target="_blank">{{ GITHUB }}/issues</a>
+            </p>
+            <p>
+              作者邮箱：<a :href="`mailto:${EMAIL}`">{{ EMAIL }}</a>
+            </p>
+            <div class="text-md color-gray mt-10">
+              Build {{ gitLastCommitHash }}
+            </div>
           </div>
         </div>
       </div>
@@ -844,8 +821,8 @@ function transferOk() {
   </BasePage>
 
   <MigrateDialog
-    v-model="showTransfer"
-    @ok="transferOk"
+      v-model="showTransfer"
+      @ok="transferOk"
   />
 </template>
 
@@ -856,93 +833,23 @@ function transferOk() {
   margin-bottom: 1rem;
 }
 
-// 用户信息样式
-.user-info-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-  border: 1px solid var(--color-input-border);
-  border-radius: 8px;
-  background: var(--color-bg);
-  width: 100%;
-  max-width: 400px;
-
-  .user-avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 3px solid var(--color-select-bg);
-
-    .avatar-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .avatar-placeholder {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 2rem;
-      font-weight: bold;
-    }
-  }
-
-  h3 {
-    margin: 0;
-    color: var(--color-font-1);
-  }
-
-  .text-sm {
-    font-size: 0.9rem;
-    margin: 0.25rem 0;
-  }
-
-  .color-gray {
-    color: #666;
-  }
-
-  .mb-1 {
-    margin-bottom: 0.25rem;
-  }
-
-  .mb-2 {
-    margin-bottom: 0.5rem;
-  }
-
-  .mb-4 {
-    margin-bottom: 1rem;
-  }
-
-  .mt-4 {
-    margin-top: 1rem;
-  }
+.col-line {
+  border-right: 2px solid gainsboro;
 }
 
 .setting {
-  @apply text-lg;
-  display: flex;
-  color: var(--color-font-1);
 
   .left {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    border-right: 2px solid gainsboro;
 
     .tabs {
-      padding: .6rem 1.6rem;
+      padding: .6rem 0;
       display: flex;
       flex-direction: column;
       gap: .6rem;
-      //color: #0C8CE9;
 
       .tab {
         @apply cursor-pointer flex items-center relative;
@@ -965,11 +872,6 @@ function transferOk() {
   }
 
   .content {
-    flex: 1;
-    height: 100%;
-    overflow: auto;
-    padding: 0 1.6rem;
-
     .row {
       min-height: 2.6rem;
       display: flex;

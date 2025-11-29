@@ -4,7 +4,7 @@ import { DictId } from "@/types/types.ts";
 import BasePage from "@/components/BasePage.vue";
 import { computed, onMounted, reactive, ref, shallowReactive, watch } from "vue";
 import { useRuntimeStore } from "@/stores/runtime.ts";
-import { _getDictDataByUrl, _nextTick, convertToWord, isMobile, loadJsLib, sleep, useNav } from "@/utils";
+import { _getDictDataByUrl, _nextTick, convertToWord, isMobile, loadJsLib, useNav } from "@/utils";
 import { nanoid } from "nanoid";
 import BaseIcon from "@/components/BaseIcon.vue";
 import BaseTable from "@/components/BaseTable.vue";
@@ -26,9 +26,8 @@ import { getCurrentStudyWord } from "@/hooks/dict.ts";
 import PracticeSettingDialog from "@/pages/word/components/PracticeSettingDialog.vue";
 import { useSettingStore } from "@/stores/setting.ts";
 import { MessageBox } from "@/utils/MessageBox.tsx";
-import { AppEnv, Origin, PracticeSaveWordKey, TourConfig } from "@/config/env.ts";
+import { AppEnv, LIB_JS_URL, Origin, PracticeSaveWordKey, TourConfig } from "@/config/env.ts";
 import { detail } from "@/apis";
-import Shepherd from "shepherd.js";
 
 const runtimeStore = useRuntimeStore()
 const base = useBaseStore()
@@ -388,7 +387,8 @@ function searchWord() {
 
 watch(() => loading, (val) => {
   if (!val) return
-  _nextTick(() => {
+  _nextTick(async () => {
+    const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD);
     const tour = new Shepherd.Tour(TourConfig);
     tour.on('cancel', () => {
       localStorage.setItem('tour-guide', '1');

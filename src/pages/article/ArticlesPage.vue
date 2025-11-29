@@ -2,7 +2,16 @@
 import { useBaseStore } from "@/stores/base.ts";
 import { useRouter } from "vue-router";
 import BasePage from "@/components/BasePage.vue";
-import {_getDictDataByUrl, _nextTick, isMobile, msToHourMinute, resourceWrap, total, useNav} from "@/utils";
+import {
+  _getDictDataByUrl,
+  _nextTick,
+  isMobile,
+  loadJsLib,
+  msToHourMinute,
+  resourceWrap,
+  total,
+  useNav
+} from "@/utils";
 import { DictResource, DictType } from "@/types/types.ts";
 import { useRuntimeStore } from "@/stores/runtime.ts";
 import BaseIcon from "@/components/BaseIcon.vue";
@@ -18,9 +27,8 @@ import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import isoWeek from 'dayjs/plugin/isoWeek'
 import { useFetch } from "@vueuse/core";
-import { AppEnv, DICT_LIST, Host, PracticeSaveArticleKey, TourConfig } from "@/config/env.ts";
+import { AppEnv, DICT_LIST, Host, LIB_JS_URL, PracticeSaveArticleKey, TourConfig } from "@/config/env.ts";
 import { myDictList } from "@/apis";
-import Shepherd from "shepherd.js";
 import { useSettingStore } from "@/stores/setting.ts";
 
 dayjs.extend(isoWeek)
@@ -57,9 +65,9 @@ async function init() {
       let data = obj.val
       //如果全是0，说明未进行练习，直接重置
       if (
-          data.practiceData.sectionIndex === 0 &&
-          data.practiceData.sentenceIndex === 0 &&
-          data.practiceData.wordIndex === 0
+        data.practiceData.sectionIndex === 0 &&
+        data.practiceData.sentenceIndex === 0 &&
+        data.practiceData.wordIndex === 0
       ) {
         throw new Error()
       }
@@ -73,7 +81,8 @@ async function init() {
 watch(() => store?.sbook?.id, (n) => {
   console.log('n', n)
   if (!n) {
-    _nextTick(() => {
+    _nextTick(async () => {
+      const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD);
       const tour = new Shepherd.Tour(TourConfig);
       tour.on('cancel', () => {
         localStorage.setItem('tour-guide', '1');
@@ -112,6 +121,13 @@ function startStudy() {
     if (!base.sbook.articles.length) {
       return Toast.warning('没有文章可学习！')
     }
+    window.umami?.track('startStudyArticle', {
+      name: base.sbook.name,
+      index: base.sbook.lastLearnIndex,
+      custom: base.sbook.custom,
+      complete: base.sbook.complete,
+      title: base.sbook.articles[base.sbook.lastLearnIndex].title
+    })
     nav('/practice-articles/' + store.sbook.id)
   } else {
     window.umami?.track('no-book')
@@ -213,12 +229,12 @@ let isNewHost = $ref(window.location.host === Host)
     <div class="card flex flex-col md:flex-row justify-between gap-space p-4 md:p-6">
       <div class="">
         <Book
-            v-if="base.sbook.id"
-            :is-add="false"
-            quantifier="篇"
-            :item="base.sbook"
-            :show-progress="false"
-            @click="goBookDetail(base.sbook)"/>
+          v-if="base.sbook.id"
+          :is-add="false"
+          quantifier="篇"
+          :item="base.sbook"
+          :show-progress="false"
+          @click="goBookDetail(base.sbook)"/>
         <Book v-else
               :is-add="true"
               @click="router.push('/book-list')"/>
@@ -228,27 +244,27 @@ let isNewHost = $ref(window.location.host === Host)
           <div class="title mr-4 truncate">本周学习记录</div>
           <div class="flex gap-4 color-gray">
             <div
-                class="w-6 h-6 md:w-8 md:h-8 rounded-md center text-sm md:text-base"
-                :class="item ? 'bg-[#409eff] color-white' : 'bg-gray-200'"
-                v-for="(item, i) in weekList"
-                :key="i"
+              class="w-6 h-6 md:w-8 md:h-8 rounded-md center text-sm md:text-base"
+              :class="item ? 'bg-[#409eff] color-white' : 'bg-gray-200'"
+              v-for="(item, i) in weekList"
+              :key="i"
             >{{ i + 1 }}
             </div>
           </div>
         </div>
         <div class="flex flex-col sm:flex-row gap-4 items-center mt-3 gap-space w-full">
           <div
-              class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200">
+            class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200">
             <div class="text-[#409eff] text-xl font-bold">{{ todayTotalSpend }}</div>
             <div class="text-gray-500">今日学习时长</div>
           </div>
           <div
-              class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200">
+            class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200">
             <div class="text-[#409eff] text-xl font-bold">{{ totalDay }}</div>
             <div class="text-gray-500">总学习天数</div>
           </div>
           <div
-              class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200">
+            class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200">
             <div class="text-[#409eff] text-xl font-bold">{{ totalSpend }}</div>
             <div class="text-gray-500">总学习时长</div>
           </div>

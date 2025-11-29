@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { onMounted, provide, ref, toRef, watch } from "vue";
+import { onMounted, provide, ref, watch } from "vue";
 
 import Statistics from "@/pages/word/Statistics.vue";
 import { emitter, EventKey, useEvents } from "@/utils/eventBus.ts";
 import { useSettingStore } from "@/stores/setting.ts";
 import { useRuntimeStore } from "@/stores/runtime.ts";
-import { Dict, PracticeData, WordPracticeType, ShortcutKey, TaskWords, Word, WordPracticeMode } from "@/types/types.ts";
+import { Dict, PracticeData, ShortcutKey, TaskWords, Word, WordPracticeMode, WordPracticeType } from "@/types/types.ts";
 import { useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener } from "@/hooks/event.ts";
 import useTheme from "@/hooks/theme.ts";
 import { getCurrentStudyWord, useWordOptions } from "@/hooks/dict.ts";
-import {_getDictDataByUrl, _nextTick, cloneDeep, isMobile, resourceWrap, shuffle} from "@/utils";
+import { _getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, resourceWrap, shuffle } from "@/utils";
 import { useRoute, useRouter } from "vue-router";
 import Footer from "@/pages/word/components/Footer.vue";
 import Panel from "@/components/Panel.vue";
@@ -25,11 +25,9 @@ import { getDefaultDict, getDefaultWord } from "@/types/func.ts";
 import ConflictNotice from "@/components/ConflictNotice.vue";
 import PracticeLayout from "@/components/PracticeLayout.vue";
 
-import { DICT_LIST, PracticeSaveWordKey, TourConfig } from "@/config/env.ts";
+import { DICT_LIST, LIB_JS_URL, PracticeSaveWordKey, TourConfig } from "@/config/env.ts";
 import { ToastInstance } from "@/components/base/toast/type.ts";
 import { watchOnce } from "@vueuse/core";
-import Shepherd from "shepherd.js";
-import { offset } from '@floating-ui/dom';
 
 const {
   isWordCollect,
@@ -117,7 +115,8 @@ onMounted(() => {
 watchOnce(() => data.words.length, (newVal, oldVal) => {
   //如果是从无值变有值，代表是开始
   if (!oldVal && newVal) {
-    _nextTick(() => {
+    _nextTick(async () => {
+      const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD);
       const tour = new Shepherd.Tour(TourConfig);
       tour.on('cancel', () => {
         localStorage.setItem('tour-guide', '1');

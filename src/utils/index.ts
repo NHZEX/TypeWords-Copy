@@ -1,13 +1,13 @@
-import {BaseState, getDefaultBaseState, useBaseStore} from "@/stores/base.ts";
-import {getDefaultSettingState, SettingState} from "@/stores/setting.ts";
-import {Dict, DictId, DictResource, DictType} from "@/types/types.ts";
-import {useRouter} from "vue-router";
-import {useRuntimeStore} from "@/stores/runtime.ts";
+import { BaseState, getDefaultBaseState, useBaseStore } from "@/stores/base.ts";
+import { getDefaultSettingState, SettingState } from "@/stores/setting.ts";
+import { Dict, DictId, DictResource, DictType } from "@/types/types.ts";
+import { useRouter } from "vue-router";
+import { useRuntimeStore } from "@/stores/runtime.ts";
 import dayjs from 'dayjs'
-import {AppEnv, RESOURCE_PATH, SAVE_DICT_KEY, SAVE_SETTING_KEY} from "@/config/env.ts";
-import {nextTick} from "vue";
+import { AppEnv, RESOURCE_PATH, SAVE_DICT_KEY, SAVE_SETTING_KEY } from "@/config/env.ts";
+import { nextTick } from "vue";
 import Toast from '@/components/base/toast/Toast.ts'
-import {getDefaultDict, getDefaultWord} from "@/types/func.ts";
+import { getDefaultDict, getDefaultWord } from "@/types/func.ts";
 import duration from "dayjs/plugin/duration";
 
 dayjs.extend(duration);
@@ -424,9 +424,43 @@ export async function loadJsLib(key: string, url: string) {
   if (window[key]) return window[key];
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
+    // 判断是否是 .mjs 文件，如果是，则使用 type="module"
+    if (url.endsWith(".mjs")) {
+      script.type = "module";  // 需要加上 type="module"
+      script.src = url;
+      script.onload = async () => {
+        try {
+          // 使用动态 import 加载模块
+          const module = await import(url); // 动态导入 .mjs 模块
+          window[key] = module.default || module; // 将模块挂到 window 对象
+          resolve(window[key]);
+        } catch (err) {
+          reject(`${key} 加载失败: ${err.message}`);
+        }
+      };
+    } else {
+      // 如果是非 .mjs 文件，直接按原方式加载
+      script.src = url;
+      script.onload = () => resolve(window[key]);
+    }
+    script.onerror = () => reject(key + " 加载失败");
+    document.head.appendChild(script);
+  });
+}
+
+export async function loadJsLib2(key: string, url: string, module: boolean = false) {
+  if (window[key]) return window[key];
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    if (module) {
+      script.type = 'module'
+    }
     script.src = url;
-    script.onload = () => resolve(window[key]);
-    script.onerror = reject;
+    script.onload = () => {
+      console.log('key', key)
+      resolve(window[key])
+    };
+    script.onerror = () => reject(key + ' 加载失败')
     document.head.appendChild(script);
   });
 }
@@ -460,6 +494,6 @@ export async function isNewUser() {
   return JSON.stringify(base.$state) === JSON.stringify({...getDefaultBaseState(), ...{load: true}})
 }
 
-export function jump2Feedback(){
+export function jump2Feedback() {
   window.open('https://v.wjx.cn/vm/ev0W7fv.aspx#', '_blank');
 }
