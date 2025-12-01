@@ -232,13 +232,13 @@ onUnmounted(() => {
 })
 
 async function handlePayment() {
-  let win = window.open('about:blank')
-  let res1 = await testPay()
-  if (res1.success) {
-    win.document.write(res1.data as string);
-    win.document.close();
-  }
-  return
+  // let win = window.open('about:blank')
+  // let res1 = await testPay()
+  // if (res1.success) {
+  //   win.document.write(res1.data as string);
+  //   win.document.close();
+  // }
+  // return
   if (loading || startLoop) return
   loading = true
   let data = {
@@ -252,10 +252,14 @@ async function handlePayment() {
   if (res.success) {
     _nextTick(() => {
       const iframe = document.getElementById('payFrame');
-      const doc = iframe.contentWindow.document;
-      doc.open();
-      doc.write(res.data.result);   // 写入 form
-      doc.close();           // form 会自动提交
+      // 强制重置为 about:blank，让 document 可写
+      iframe.src = 'about:blank';
+      iframe.onload = () => {
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(res.data.result);   // 写入 form
+        doc.close();           // form 会自动提交
+      };
       startLoop = true
     })
     orderNo = res.data.orderNo
@@ -366,7 +370,6 @@ async function getCouponInfo() {
         </div>
       </div>
     </div>
-
 
     <div id="pay" class="mb-50">
       <!-- Page Header -->
