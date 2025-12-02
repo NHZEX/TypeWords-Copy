@@ -13,7 +13,7 @@ import {
   levelBenefits,
   orderCreate,
   orderStatus,
-  setAutoRenewApi
+  setAutoRenewApi, testPay
 } from "@/apis/member.ts";
 import Radio from "@/components/base/radio/Radio.vue";
 import RadioGroup from "@/components/base/radio/RadioGroup.vue";
@@ -38,7 +38,7 @@ interface Plan {
 }
 
 let loading = $ref(false);
-let selectedPaymentMethod = $ref('wechat')
+let selectedPaymentMethod = $ref('alipay')
 let selectedPlanId = $ref('')
 let duration = $ref(1)
 const member = $computed<User['member']>(() => userStore.user?.member ?? {} as any)
@@ -79,11 +79,11 @@ const plans: Plan[] = $computed(() => {
 
 // Payment methods - WeChat and Alipay
 const paymentMethods = [
-  {
-    id: 'wechat',
-    name: '微信支付',
-    description: '使用微信支付'
-  },
+  // {
+  //   id: 'wechat',
+  //   name: '微信支付',
+  //   description: '使用微信支付'
+  // },
   {
     id: 'alipay',
     name: '支付宝',
@@ -232,7 +232,14 @@ onUnmounted(() => {
 })
 
 async function handlePayment() {
-  if (loading) return
+  // let win = window.open('about:blank')
+  // let res1 = await testPay()
+  // if (res1.success) {
+  //   win.document.write(res1.data as string);
+  //   win.document.close();
+  // }
+  // return
+  if (loading || startLoop) return
   loading = true
   let data = {
     plan: selectedPlanId,
@@ -241,9 +248,21 @@ async function handlePayment() {
     couponCode: coupon.is_valid ? coupon.code : undefined
   }
   let res = await orderCreate(data)
+  console.log('res', res)
   if (res.success) {
+    _nextTick(() => {
+      const iframe = document.getElementById('payFrame');
+      // 强制重置为 about:blank，让 document 可写
+      iframe.src = 'about:blank';
+      iframe.onload = () => {
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(res.data.result);   // 写入 form
+        doc.close();           // form 会自动提交
+      };
+      startLoop = true
+    })
     orderNo = res.data.orderNo
-    startLoop = true
   } else {
     Toast.error(res.msg || '付款失败')
   }
@@ -254,7 +273,7 @@ let couponLoading = $ref(false)
 
 async function getCouponInfo() {
   if (showCouponInput) {
-    if (!coupon.code) return
+    if (!coupon.code) return Toast.info('请输入优惠券')
     if (couponLoading) return
     couponLoading = true
     let res = await couponInfo(coupon)
@@ -352,16 +371,15 @@ async function getCouponInfo() {
       </div>
     </div>
 
-    <div id="pay" class="mb-50" v-if="selectedPlanId">
+    <div id="pay" class="mb-50">
       <!-- Page Header -->
       <div class="text-center mb-6">
         <h1 class="text-xl font-semibold mb-2">安全支付</h1>
         <p class="">选择支付方式完成订单</p>
       </div>
 
-
       <div class="center">
-        <div class="card-white w-7/10">
+        <div class="card-white w-5/10">
           <div class="flex items-center justify-between gap-6 ">
             <div class="center gap-2" v-if="!showCouponInput">
               <IconStreamlineDiscountPercentCoupon/>
@@ -370,6 +388,7 @@ async function getCouponInfo() {
             <BaseInput v-else v-model="coupon.code"
                        placeholder="请输入优惠券"
                        autofocus
+                       clearable
                        @enter="getCouponInfo"
             />
             <BaseButton size="large"
@@ -398,9 +417,8 @@ async function getCouponInfo() {
         </div>
       </div>
 
-
       <!-- Main Content -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="grid grid-cols-3 gap-8">
         <!-- Left Card: Payment Method Selection -->
         <div class="card-white">
           <div class="text-lg font-medium mb-4">选择支付方式</div>
@@ -479,12 +497,40 @@ async function getCouponInfo() {
             付款
           </BaseButton>
         </div>
+
+        <!-- Right Card: Order Summary -->
+        <div class="card-white flex flex-col">
+          <div class="text-lg font-semibold mb-4">扫码支付</div>
+          <div class="center flex-col relative flex-1">
+            <div class="center h-full w-full absolute left-0 top-0 bg-white z-2" v-if="!startLoop">
+              <div class="w-5/10">
+                请点击左侧付款按钮后，支付二维码将自动显示
+              </div>
+            </div>
+
+            <iframe id="payFrame" class="w-[205px] h-[205px] center border-none"></iframe>
+            <div class="text-center mt-4">
+              请使用支付宝扫码支付
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
   </BasePage>
 </template>
 
 <style scoped lang="scss">
+
+.pay-dialog {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99999;
+}
+
 .plans {
   display: grid;
   gap: 3rem;

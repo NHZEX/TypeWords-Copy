@@ -618,6 +618,22 @@ function transferOk() {
             <div class="log-item">
               <div class="mb-2">
                 <div>
+                  <div>日期：2025/12/3</div>
+                  <div>内容：录入新概念（三、四）部分音频，优化文章相关功能</div>
+                </div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
+                  <div>日期：2025/12/2</div>
+                  <div>内容：完成新概念（一）音频，优化文章管理页面</div>
+                </div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="mb-2">
+                <div>
                   <div>日期：2025/11/30</div>
                   <div>内容：文章里的单词可点击播放</div>
                 </div>

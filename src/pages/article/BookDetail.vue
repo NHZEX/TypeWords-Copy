@@ -192,7 +192,13 @@ function next() {
           <BaseButton :loading="studyLoading||loading" @click="addMyStudyList">学习</BaseButton>
         </div>
       </div>
-      <div class="text-lg  ">介绍：{{ runtimeStore.editDict.description }}</div>
+      <div class="flex gap-4 mt-2">
+        <img :src="runtimeStore.editDict?.cover"
+             class="w-30 rounded-md"
+             v-if="runtimeStore.editDict?.cover"
+             alt="">
+        <div class="text-lg">介绍：{{ runtimeStore.editDict.description }}</div>
+      </div>
       <div class="text-base  " v-if="totalSpend">总学习时长：{{ totalSpend }}</div>
 
       <div class="line my-3"></div>
@@ -212,6 +218,10 @@ function next() {
                   :title="!isArticleCollect(item) ? '收藏' : '取消收藏'">
                 <IconFluentStar16Regular v-if="!isArticleCollect(item)"/>
                 <IconFluentStar16Filled v-else/>
+              </BaseIcon>
+
+              <BaseIcon title="可播放音频" v-if="item.audioSrc || item.audioFileId">
+                <IconBxVolumeFull class="opacity-100!"/>
               </BaseIcon>
             </template>
           </ArticleList>

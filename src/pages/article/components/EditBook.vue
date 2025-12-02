@@ -78,7 +78,9 @@ async function onSubmit() {
         //任意修改，都将其变为自定义词典
         if (!data.custom && ![DictId.wordKnown, DictId.wordWrong, DictId.wordCollect, DictId.articleCollect].includes(data.en_name || data.id)) {
           data.custom = true
-          data.id += '_custom'
+          if (!data.id.includes('_custom')) {
+            data.id += '_custom'
+          }
         }
         runtimeStore.editDict = data
         if (rIndex > -1) {

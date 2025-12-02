@@ -252,7 +252,7 @@ let isNewHost = $ref(window.location.host === Host)
             </div>
           </div>
         </div>
-        <div class="flex flex-col sm:flex-row gap-4 items-center mt-3 gap-space w-full">
+        <div class="flex flex-col sm:flex-row gap-3 items-center mt-3 gap-space w-full">
           <div
             class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200">
             <div class="text-[#409eff] text-xl font-bold">{{ todayTotalSpend }}</div>
@@ -318,7 +318,6 @@ let isNewHost = $ref(window.location.host === Host)
         <Book :is-add="true" @click="router.push('/book-list')"/>
       </div>
     </div>
-
 
     <div class="card flex flex-col min-h-50" v-loading="isFetching">
       <div class="flex justify-between">

@@ -131,6 +131,7 @@ export const useBaseStore = defineStore('base', {
               data.dictListVersion = r.data
             }
           }
+          console.log('data',data)
           if (AppEnv.CAN_REQUEST) {
             let res = await myDictList()
             if (res.success) {
@@ -190,7 +191,11 @@ export const useBaseStore = defineStore('base', {
       let rIndex = this.article.bookList.findIndex((v: Dict) => v.id === val.id)
       if (rIndex > -1) {
         this.article.studyIndex = rIndex
-        this.article.bookList[this.article.studyIndex].articles = shallowReactive(val.articles)
+        this.article.bookList[this.article.studyIndex] = getDefaultDict(val)
+        // this.article.bookList[this.article.studyIndex].articles = shallowReactive(val.articles)
+        // this.article.bookList[this.article.studyIndex].cover = val.cover
+        // this.article.bookList[this.article.studyIndex].name = val.name
+        // this.article.bookList[this.article.studyIndex].description = val.description
       } else {
         this.article.bookList.push(getDefaultDict(val))
         this.article.studyIndex = this.article.bookList.length - 1

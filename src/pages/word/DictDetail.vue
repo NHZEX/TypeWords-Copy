@@ -77,7 +77,9 @@ function syncDictInMyStudyList(study = false) {
     let temp = runtimeStore.editDict;
     if (!temp.custom && ![DictId.wordKnown, DictId.wordWrong, DictId.wordCollect].includes(temp.id)) {
       temp.custom = true
-      temp.id += '_custom'
+      if (!temp.id.includes('_custom')) {
+        temp.id += '_custom'
+      }
     }
     temp.length = temp.words.length
     if (rIndex > -1) {
@@ -456,7 +458,7 @@ defineRender(() => {
                     <BaseButton loading={studyLoading || loading} onClick={startTest}>测试</BaseButton>
                   </div>
                 </div>
-                <div class="text-lg  ">介绍：{runtimeStore.editDict.description}</div>
+                <div class="text-lg  mt-2">介绍：{runtimeStore.editDict.description}</div>
                 <div class="line my-3"></div>
 
                 {/* 移动端标签页导航 */}

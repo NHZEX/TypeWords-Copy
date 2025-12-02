@@ -360,6 +360,9 @@ function saveArticle(val: Article) {
   }
   setArticle(val)
   store.sbook.custom = true
+  if (!store.sbook.id.includes('_custom')) {
+    store.sbook.id += '_custom'
+  }
 }
 
 function edit(val: Article = articleData.article) {
@@ -530,6 +533,9 @@ provide('currentPractice', currentPractice)
                   :title="!isArticleCollect(item) ? '收藏' : '取消收藏'">
                 <IconFluentStar16Regular v-if="!isArticleCollect(item)"/>
                 <IconFluentStar16Filled v-else/>
+              </BaseIcon>
+              <BaseIcon title="可播放音频" v-if="item.audioSrc || item.audioFileId">
+                <IconBxVolumeFull class="opacity-100!"/>
               </BaseIcon>
             </template>
           </ArticleList>

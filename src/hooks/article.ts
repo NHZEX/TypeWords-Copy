@@ -2,7 +2,7 @@ import { Article, DictId, PracticeArticleWordType, Sentence } from "@/types/type
 import { _nextTick, cloneDeep } from "@/utils"
 import { usePlayWordAudio } from "@/hooks/sound.ts"
 import { getSentenceAllText, getSentenceAllTranslateText } from "@/hooks/translate.ts"
-import { getDefaultArticleWord } from "@/types/func.ts"
+import { getDefaultArticleWord, getDefaultDict } from "@/types/func.ts"
 import { useSettingStore } from "@/stores/setting.ts"
 import { useBaseStore } from "@/stores/base.ts"
 import { useRuntimeStore } from "@/stores/runtime.ts"
@@ -363,17 +363,20 @@ export function syncBookInMyStudyList(study = false) {
   _nextTick(() => {
     const base = useBaseStore()
     const runtimeStore = useRuntimeStore()
-    let rIndex = base.article.bookList.findIndex((v) => v.id === runtimeStore.editDict.id)
-    let temp = cloneDeep(runtimeStore.editDict)
+    let temp = runtimeStore.editDict
+    let rIndex = base.article.bookList.findIndex((v) => v.id === temp.id)
     if (!temp.custom && temp.id !== DictId.articleCollect) {
       temp.custom = true
+      if (!temp.id.includes('_custom')) {
+        temp.id += '_custom'
+      }
     }
     temp.length = temp.articles.length
     if (rIndex > -1) {
-      base.article.bookList[rIndex] = temp
+      base.article.bookList[rIndex] = getDefaultDict(temp)
       if (study) base.article.studyIndex = rIndex
     } else {
-      base.article.bookList.push(temp)
+      base.article.bookList.push(getDefaultDict(temp))
       if (study) base.article.studyIndex = base.article.bookList.length - 1
     }
   }, 100)

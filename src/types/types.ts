@@ -178,6 +178,8 @@ export interface Dict extends DictResource {
   createdBy?: string
   category_id?: number
   is_default?: boolean
+  update?: boolean
+  cover?: string
 }
 
 export interface ArticleItem {

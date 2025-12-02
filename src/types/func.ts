@@ -72,6 +72,8 @@ export function getDefaultDict(val: Partial<Dict> = {}): Dict {
     en_name: '',
     category_id: null,
     is_default: false,
+    update: false,
+    cover: '',
 
     ...val,
     words: shallowReactive(val.words ?? []),

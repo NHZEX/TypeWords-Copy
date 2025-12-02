@@ -131,6 +131,7 @@ declare module 'vue' {
     Logo: typeof import('./src/components/Logo.vue')['default']
     MigrateDialog: typeof import('./src/components/MigrateDialog.vue')['default']
     MiniDialog: typeof import('./src/components/dialog/MiniDialog.vue')['default']
+    NewBook: typeof import('./src/components/NewBook.vue')['default']
     Option: typeof import('./src/components/base/select/Option.vue')['default']
     Pagination: typeof import('./src/components/base/Pagination.vue')['default']
     Panel: typeof import('./src/components/Panel.vue')['default']

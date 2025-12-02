@@ -68,6 +68,7 @@ function onClick() {
     position: relative;
     box-sizing: border-box;
     background: white;
+    border: 1px solid gainsboro;
 
     &::after {
       content: '';
