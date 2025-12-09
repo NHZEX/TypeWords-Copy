@@ -35,8 +35,7 @@
 
 ## 在线访问
 
-中国: [https://typewords.cc](https://typewords.cc)   
-其他: [https://vercel.typewords.cc](https://vercel.typewords.cc) or [https://tw.typewords.cc](https://tw.typewords.cc)
+[https://typewords.cc](https://typewords.cc)   
 
 ## 功能列表
 
