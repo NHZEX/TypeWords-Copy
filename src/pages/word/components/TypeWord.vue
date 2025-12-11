@@ -435,9 +435,9 @@ useEvents([
       </div>
 
       <Tooltip
-          :title="([WordPracticeType.FollowWrite,WordPracticeType.Identify].includes(settingStore.wordPracticeType) || !settingStore.dictation)
-          ? ''
-          : `可以按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示正确答案`
+          :title="(settingStore.dictation)
+          ? `可以按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示正确答案`
+          : ''
 ">
         <div id="word" class="word my-1"
              :class="wrong && 'is-wrong'"
