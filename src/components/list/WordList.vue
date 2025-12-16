@@ -5,6 +5,7 @@ import VolumeIcon from "@/components/icon/VolumeIcon.vue";
 import BaseList from "@/components/list/BaseList.vue";
 import { usePlayWordAudio } from "@/hooks/sound.ts";
 import Tooltip from "@/components/base/Tooltip.vue";
+import WordItem from "@/components/WordItem.vue";
 
 withDefaults(defineProps<{
   list: Word[],
@@ -33,16 +34,12 @@ function scrollToItem(index: number) {
 
 const playWordAudio = usePlayWordAudio()
 
-defineExpose({scrollToBottom, scrollToItem})
+defineExpose({ scrollToBottom, scrollToItem })
 
 </script>
 
 <template>
-  <BaseList
-      ref="listRef"
-      @click="(e:any) => emit('click',e)"
-      :list="list"
-      v-bind="$attrs">
+  <BaseList ref="listRef" @click="(e: any) => emit('click', e)" :list="list" v-bind="$attrs">
     <template v-slot:prefix="{ item, index }">
       <slot name="prefix" :item="item" :index="index"></slot>
     </template>
@@ -55,14 +52,10 @@ defineExpose({scrollToBottom, scrollToItem})
       </div>
       <div class="item-sub-title flex flex-col gap-2" v-if="item.trans.length && showTranslate">
         <div v-for="v in item.trans">
-          <Tooltip
-              v-if="v.cn.length > 30"
-              :key="item.word"
-              :title="v.pos + '  ' + v.cn"
-          >
-            <span>{{ v.pos + '  ' + v.cn.slice(0, 30) + '...' }}</span>
+          <Tooltip v-if="v.cn.length > 30" :key="item.word" :title="v.pos + '  ' + v.cn">
+            <span>{{ v.pos + ' ' + v.cn.slice(0, 30) + '...' }}</span>
           </Tooltip>
-          <span v-else>{{ v.pos + '  ' + v.cn }}</span>
+          <span v-else>{{ v.pos + ' ' + v.cn }}</span>
         </div>
       </div>
     </template>

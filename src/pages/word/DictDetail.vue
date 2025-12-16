@@ -440,37 +440,39 @@ watch(() => loading, (val) => {
   }, 500)
 })
 
-let pageNo = $ref(1)
-let pageSize = $ref(50)
 let list2 = $ref([])
 
-async function requestList({ pageNo, pageSize }) {
+async function requestList({ pageNo, pageSize, searchKey }) {
   if (AppEnv.CAN_REQUEST) {
 
   } else {
-    return {
-      list: list2.slice((pageNo - 1) * pageSize, (pageNo - 1) * pageSize + pageSize),
-      total: list2.length
+    let list = list2
+    let total = list2.length
+    if (searchKey.trim()) {
+      list = list2.filter(v => v.word.toLowerCase().includes(searchKey.trim().toLowerCase()))
+      total = list.length
     }
+    list = list.slice((pageNo - 1) * pageSize, (pageNo - 1) * pageSize + pageSize)
+    return { list, total }
   }
 }
 
-function sort(type: Sort, pageNo: number, pageSize: number) {
-  debugger
-
-  console.log('sort', type)
-  if ([Sort.reverse, Sort.random].includes(type)) {
+function onSort(type: Sort, pageNo: number, pageSize: number) {
+  if (AppEnv.CAN_REQUEST) {
+  } else {
+    let fun = reverse
+    if ([Sort.reverse, Sort.reverseAll].includes(type)) {
+      fun = reverse
+    } else if ([Sort.random, Sort.randomAll].includes(type)) {
+      fun = shuffle
+    }
     list2 = list2.slice(0, pageSize * (pageNo - 1))
-      .concat(reverse(list2.slice(pageSize * (pageNo - 1), pageSize * (pageNo - 1) + pageSize)))
+      .concat(fun(list2.slice(pageSize * (pageNo - 1), pageSize * (pageNo - 1) + pageSize)))
       .concat(list2.slice(pageSize * (pageNo - 1) + pageSize))
-  } else if ([Sort.reverseAll, Sort.randomAll].includes(type)) {
-    list2 = list2.slice(0, pageSize * (pageNo - 1))
-      .concat(shuffle(list2.slice(pageSize * (pageNo - 1), pageSize * (pageNo - 1) + pageSize)))
-      .concat(list2.slice(pageSize * (pageNo - 1) + pageSize))
+    runtimeStore.editDict.words = list2
+    Toast.success('操作成功')
+    tableRef.value.getData()
   }
-  runtimeStore.editDict.words = list2
-  Toast.success('已排序成功')
-  tableRef.value.getData()
 }
 
 
@@ -513,7 +515,6 @@ defineRender(() => {
           <div class="flex flex-1 overflow-hidden content-area">
             <div class={`word-list-section ${isMob && isOperate && activeTab !== 'list' ? 'mobile-hidden' : ''}`}>
               <BaseTable
-                sort={sort}
                 ref={tableRef}
                 class="h-full"
                 request={requestList}
@@ -523,7 +524,8 @@ defineRender(() => {
                 onUpdate:list={e => list = e}
                 del={delWord}
                 batchDel={batchDel}
-                add={addWord}
+                onSort={onSort}
+                onAdd={addWord}
                 onImportData={importData}
                 onExportData={exportData}
                 exportLoading={exportLoading}

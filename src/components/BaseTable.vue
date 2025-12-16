@@ -16,7 +16,6 @@ import Dialog from "@/components/dialog/Dialog.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
 import { Host } from "@/config/env.ts";
 
-let list = defineModel('list')
 
 const props = withDefaults(defineProps<{
   loading?: boolean
@@ -42,6 +41,7 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
+  add: []
   click: [val: {
     item: any,
     index: number
@@ -73,13 +73,6 @@ function scrollToItem(index: number) {
 
 let pageNo = $ref(1)
 let pageSize = $ref(50)
-let currentList = $computed(() => {
-  if (searchKey) {
-    return list.value.filter(v => v.word.includes(searchKey))
-  }
-  if (!props.showPagination) return list.value
-  return list.value.slice((pageNo - 1) * pageSize, (pageNo - 1) * pageSize + pageSize)
-})
 
 let selectIds = $ref([])
 let selectAll = $computed(() => {
@@ -100,11 +93,10 @@ function toggleSelectAll() {
   if (selectAll) {
     selectIds = []
   } else {
-    selectIds = currentList.map(v => v.id)
+    selectIds = list2.map(v => v.id)
   }
 }
 
-let searchKey = $ref('')
 let showSortDialog = $ref(false)
 let showSearchInput = $ref(false)
 let showImportDialog = $ref(false)
@@ -112,17 +104,10 @@ let showImportDialog = $ref(false)
 const closeImportDialog = () => showImportDialog = false
 
 function sort(type: Sort) {
-  if (type === Sort.reverse) {
-    emit('sort', type,pageNo,pageSize)
-  }
-  if (type === Sort.random) {
-    emit('sort', type,pageNo,pageSize)
-  }
-  if (type === Sort.reverseAll) {
-    emit('sort', type,1,total2)
-  }
-  if (type === Sort.randomAll) {
-    emit('sort', type,1,total2)
+  if ([Sort.reverse, Sort.random].includes(type)) {
+    emit('sort', type,params.pageNo,params.pageSize)
+  }else{
+    emit('sort', type,1,params.total)
   }
   showSortDialog = false
 }
@@ -133,7 +118,7 @@ function handleBatchDel() {
 }
 
 function handlePageNo(e) {
-  pageNo = e
+  params.pageNo = e
   getData()
   scrollToTop()
 }
@@ -150,14 +135,37 @@ defineExpose({
 
 let list2 = $ref([])
 let loading2 = $ref(false)
-let total2 = $ref(0)
+
+let params = $ref({
+  pageNo: 1,
+  pageSize: 50,
+  total: 0,
+  sortType: null,
+  searchKey: ''
+})
+
+function search(key: string) {
+  console.log('key',key)
+  if(!params.searchKey) {
+    params.pageNo = 1
+  }
+  params.searchKey = key
+  getData() 
+}
+
+function cancelSearch() {
+  params.searchKey = ''
+  showSearchInput = false
+  getData()
+} 
 
 async function getData() {
   loading2 = true
-  let {list, total} = await props.request({ pageNo, pageSize })
-  console.log('list2',list2)
+  console.log('params',params);
+  let {list, total} = await props.request(params)
+  console.log('list',list)
   list2 = list
-  total2 = total
+  params.total = total
   loading2 = false
 }
 
@@ -182,8 +190,8 @@ defineRender(
                         <div class="flex gap-4">
                           <BaseInput
                               clearable
-                              modelValue={searchKey}
-                              onUpdate:modelValue={debounce(e => searchKey = e)}
+                              modelValue={params.searchKey}
+                              onUpdate:modelValue={debounce(e => search(e), 500)}
                               class="flex-1"
                               autofocus>
                             {{
@@ -192,17 +200,17 @@ defineRender(
                               />
                             }}
                           </BaseInput>
-                          <BaseButton onClick={() => (showSearchInput = false, searchKey = '')}>取消</BaseButton>
+                          <BaseButton onClick={cancelSearch}>取消</BaseButton>
                         </div>
                     ) : (
                         <div class="flex justify-between">
                           <div class="flex gap-2 items-center">
                             <Checkbox
-                                disabled={!currentList.length}
+                                disabled={!list2.length}
                                 onChange={() => toggleSelectAll()}
                                 modelValue={selectAll}
                                 size="large"/>
-                            <span>{selectIds.length} / {list.value.length}</span>
+                            <span>{selectIds.length} / {params.total}</span>
                           </div>
 
                           <div class="flex gap-2 relative">
@@ -230,19 +238,19 @@ defineRender(
                               {props.exportLoading ? <IconEosIconsLoading/> : <IconPhExportLight/>}
                             </BaseIcon>
                             <BaseIcon
-                                onClick={props.add}
+                                onClick={() => emit('add')}
                                 title="添加单词">
                               <IconFluentAdd20Regular/>
                             </BaseIcon>
                             <BaseIcon
-                                disabled={!currentList.length}
+                                disabled={!list2.length}
                                 title="改变顺序"
                                 onClick={() => showSortDialog = !showSortDialog}
                             >
                               <IconFluentArrowSort20Regular/>
                             </BaseIcon>
                             <BaseIcon
-                                disabled={!currentList.length}
+                                disabled={!list2.length}
                                 onClick={() => showSearchInput = !showSearchInput}
                                 title="搜索">
                               <IconFluentSearch20Regular/>
@@ -259,7 +267,7 @@ defineRender(
                                 <BaseButton onClick={() => sort(Sort.reverse)}>翻转当前页</BaseButton>
                                 <BaseButton onClick={() => sort(Sort.reverseAll)}>翻转所有</BaseButton>
                                 <div class="line"></div>
-                                <BaseButton onClick={() => sort(Sort.reverse)}>随机当前页</BaseButton>
+                                <BaseButton onClick={() => sort(Sort.random)}>随机当前页</BaseButton>
                                 <BaseButton onClick={() => sort(Sort.randomAll)}>随机所有</BaseButton>
                               </div>
                             </MiniDialog>
@@ -291,13 +299,13 @@ defineRender(
                         {
                             props.showPagination && <div class="flex justify-end">
                               <Pagination
-                                  currentPage={pageNo}
+                                  currentPage={params.pageNo}
                                   onUpdate:current-page={handlePageNo}
-                                  pageSize={pageSize}
-                                  onUpdate:page-size={(e) => pageSize = e}
+                                  pageSize={params.pageSize}
+                                  onUpdate:page-size={(e) => params.pageSize = e}
                                   pageSizes={[20, 50, 100, 200]}
-                                  layout="prev, pager, next"
-                                  total={total2}/>
+                                  layout="prev, pager, next, total"
+                                  total={params.total}/>
                             </div>
                         }
                       </>

@@ -473,23 +473,6 @@ export async function loadJsLib(key: string, url: string) {
   });
 }
 
-export async function loadJsLib2(key: string, url: string, module: boolean = false) {
-  if (window[key]) return window[key];
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    if (module) {
-      script.type = 'module'
-    }
-    script.src = url;
-    script.onload = () => {
-      console.log('key', key)
-      resolve(window[key])
-    };
-    script.onerror = () => reject(key + ' 加载失败')
-    document.head.appendChild(script);
-  });
-}
-
 export function total(arr, key) {
   return arr.reduce((a, b) => {
     a += b[key];

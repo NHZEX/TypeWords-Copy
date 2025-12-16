@@ -7,6 +7,14 @@
     <div class="log-item">
       <div class="mb-2">
         <div>
+          <div>日期：2025/12/15</div>
+          <div>内容：修复在黑暗模式下，翻译颜色不正确；支持中文符号输入</div>
+        </div>
+      </div>
+    </div>
+    <div class="log-item">
+      <div class="mb-2">
+        <div>
           <div>日期：2025/12/11</div>
           <div>内容：修复音标显示错误问题，优化反馈页面</div>
         </div>
