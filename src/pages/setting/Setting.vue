@@ -306,15 +306,15 @@ function transferOk() {
           <div class="tabs">
             <div class="tab" :class="tabIndex === 0 && 'active'" @click="tabIndex = 0">
               <IconFluentSettings20Regular width="20"/>
-              <span>通用</span>
+              <span>通用设置</span>
             </div>
             <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1">
               <IconFluentTextUnderlineDouble20Regular width="20"/>
-              <span>单词</span>
+              <span>单词设置</span>
             </div>
             <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2">
               <IconFluentBookLetter20Regular width="20"/>
-              <span>文章</span>
+              <span>文章设置</span>
             </div>
             <div class="tab" :class="tabIndex === 4 && 'active'" @click="tabIndex = 4">
               <IconFluentDatabasePerson20Regular width="20"/>

@@ -6,8 +6,10 @@ import About from "@/components/About.vue";
 
 <template>
   <BasePage>
-    <div class="card center-col">
-      <About/>
+    <div class="center">
+      <div class="card w-2/3 center-col pb-20">
+        <About/>
+      </div>
     </div>
   </BasePage>
 </template>

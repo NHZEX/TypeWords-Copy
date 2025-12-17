@@ -7,6 +7,22 @@
     <div class="log-item">
       <div class="mb-2">
         <div>
+          <div>日期：2025/12/17</div>
+          <div>内容：新增帮助页面</div>
+        </div>
+      </div>
+    </div>
+    <div class="log-item">
+      <div class="mb-2">
+        <div>
+          <div>日期：2025/12/16</div>
+          <div>内容：修复弹框内边距太小；单词、文章、通用设置在设置页面、练习界面均可进行设置</div>
+        </div>
+      </div>
+    </div>
+    <div class="log-item">
+      <div class="mb-2">
+        <div>
           <div>日期：2025/12/15</div>
           <div>内容：修复在黑暗模式下，翻译颜色不正确；支持中文符号输入</div>
         </div>
