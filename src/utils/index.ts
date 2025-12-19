@@ -178,8 +178,10 @@ export function msToHourMinute(ms) {
   const d = dayjs.duration(ms);
   const hours = d.hours();
   const minutes = d.minutes();
+  const seconds = d.seconds();
   if (hours) return `${hours}小时${minutes}分钟`;
-  return `${minutes}分钟`;
+  if (minutes) return `${minutes}分钟`;
+  return `${seconds}秒`;
 }
 
 export function msToMinute(ms) {
@@ -469,23 +471,6 @@ export async function loadJsLib(key: string, url: string) {
       script.onload = () => resolve(window[key]);
     }
     script.onerror = () => reject(key + " 加载失败");
-    document.head.appendChild(script);
-  });
-}
-
-export async function loadJsLib2(key: string, url: string, module: boolean = false) {
-  if (window[key]) return window[key];
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    if (module) {
-      script.type = 'module'
-    }
-    script.src = url;
-    script.onload = () => {
-      console.log('key', key)
-      resolve(window[key])
-    };
-    script.onerror = () => reject(key + ' 加载失败')
     document.head.appendChild(script);
   });
 }

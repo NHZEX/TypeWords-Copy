@@ -7,7 +7,7 @@ import { PracticeData, ShortcutKey } from "@/types/types.ts";
 import BaseIcon from "@/components/BaseIcon.vue";
 import Tooltip from "@/components/base/Tooltip.vue";
 import Progress from '@/components/base/Progress.vue'
-import SettingDialog from "@/components/SettingDialog.vue";
+import SettingDialog from "@/components/setting/SettingDialog.vue";
 
 const statStore = usePracticeStore()
 const settingStore = useSettingStore()

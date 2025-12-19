@@ -252,7 +252,11 @@ function updateList(e) {
           @select-item="selectArticle"
       >
         <template v-slot="{item,index}">
-          <div class="name"> {{ `${index + 1}. ${item.title}` }}</div>
+          <div class="name">
+            <span class="text-sm text-gray-500" v-if="index != undefined">
+                    {{ index + 1}}.
+                  </span>
+            {{ item.title }}</div>
           <div class="translate-name"> {{ `   ${item.titleTranslate}` }}</div>
         </template>
       </List>

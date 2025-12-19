@@ -1,50 +1,50 @@
 <script setup lang="tsx">
-import { DictId } from "@/types/types.ts";
+import { DictId, Sort } from "@/types/types.ts";
 
-import BasePage from "@/components/BasePage.vue";
-import { computed, onMounted, reactive, ref, shallowReactive, watch } from "vue";
-import { useRuntimeStore } from "@/stores/runtime.ts";
-import { _getDictDataByUrl, _nextTick, convertToWord, isMobile, loadJsLib, useNav } from "@/utils";
-import { nanoid } from "nanoid";
-import BaseIcon from "@/components/BaseIcon.vue";
-import BaseTable from "@/components/BaseTable.vue";
-import WordItem from "@/components/WordItem.vue";
-import Toast from '@/components/base/toast/Toast.ts'
-import PopConfirm from "@/components/PopConfirm.vue";
+import { detail } from "@/apis";
 import BackIcon from "@/components/BackIcon.vue";
 import BaseButton from "@/components/BaseButton.vue";
-import { useRoute, useRouter } from "vue-router";
-import { useBaseStore } from "@/stores/base.ts";
-import EditBook from "@/pages/article/components/EditBook.vue";
-import { getDefaultDict } from "@/types/func.ts";
+import BaseIcon from "@/components/BaseIcon.vue";
+import BasePage from "@/components/BasePage.vue";
+import BaseTable from "@/components/BaseTable.vue";
+import PopConfirm from "@/components/PopConfirm.vue";
+import WordItem from "@/components/WordItem.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
 import Textarea from "@/components/base/Textarea.vue";
-import FormItem from "@/components/base/form/FormItem.vue";
 import Form from "@/components/base/form/Form.vue";
+import FormItem from "@/components/base/form/FormItem.vue";
+import Toast from '@/components/base/toast/Toast.ts';
 import DeleteIcon from "@/components/icon/DeleteIcon.vue";
+import { AppEnv, LIB_JS_URL, PracticeSaveWordKey, TourConfig } from "@/config/env.ts";
 import { getCurrentStudyWord } from "@/hooks/dict.ts";
+import EditBook from "@/pages/article/components/EditBook.vue";
 import PracticeSettingDialog from "@/pages/word/components/PracticeSettingDialog.vue";
+import { useBaseStore } from "@/stores/base.ts";
+import { useRuntimeStore } from "@/stores/runtime.ts";
 import { useSettingStore } from "@/stores/setting.ts";
+import { getDefaultDict } from "@/types/func.ts";
+import {
+  _getDictDataByUrl,
+  _nextTick,
+  convertToWord,
+  isMobile,
+  loadJsLib,
+  reverse,
+  shuffle,
+  useNav
+} from "@/utils";
 import { MessageBox } from "@/utils/MessageBox.tsx";
-import { AppEnv, LIB_JS_URL, Origin, PracticeSaveWordKey, TourConfig } from "@/config/env.ts";
-import { detail } from "@/apis";
+import { nanoid } from "nanoid";
+import { computed, onMounted, reactive, ref, shallowReactive, shallowRef, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const runtimeStore = useRuntimeStore()
 const base = useBaseStore()
 const router = useRouter()
 const route = useRoute()
 const isMob = isMobile()
-
 let loading = $ref(false)
-
-let list = $computed({
-  get() {
-    return runtimeStore.editDict.words
-  },
-  set(v) {
-    runtimeStore.editDict.words = shallowReactive(v)
-  }
-})
+let allList = $ref([])
 
 const getDefaultFormWord = () => {
   return {
@@ -73,7 +73,10 @@ let studyLoading = $ref(false)
 
 function syncDictInMyStudyList(study = false) {
   _nextTick(() => {
+    //这里不能移，一定要先找到对应的词典，再去改id。不然先改id，就找不到对应的词典了
     let rIndex = base.word.bookList.findIndex(v => v.id === runtimeStore.editDict.id)
+
+    runtimeStore.editDict.words = allList
     let temp = runtimeStore.editDict;
     if (!temp.custom && ![DictId.wordKnown, DictId.wordWrong, DictId.wordCollect].includes(temp.id)) {
       temp.custom = true
@@ -83,10 +86,10 @@ function syncDictInMyStudyList(study = false) {
     }
     temp.length = temp.words.length
     if (rIndex > -1) {
-      base.word.bookList[rIndex] = temp
+      base.word.bookList[rIndex] = getDefaultDict(temp)
       if (study) base.word.studyIndex = rIndex
     } else {
-      base.word.bookList.push(temp)
+      base.word.bookList.push(getDefaultDict(temp))
       if (study) base.word.studyIndex = base.word.bookList.length - 1
     }
   }, 100)
@@ -99,7 +102,7 @@ async function onSubmitWord() {
       let data: any = convertToWord(wordForm)
       //todo 可以检查的更准确些，比如json对比
       if (data.id) {
-        let r = list.find(v => v.id === data.id)
+        let r = allList.find(v => v.id === data.id)
         if (r) {
           Object.assign(r, data)
           Toast.success('修改成功')
@@ -110,11 +113,11 @@ async function onSubmitWord() {
       } else {
         data.id = nanoid(6)
         data.checked = false
-        let r = list.find(v => v.word === wordForm.word)
+        let r = allList.find(v => v.word === wordForm.word)
         if (r) {
           Toast.warning('已有相同名称单词！')
           return
-        } else list.push(data)
+        } else allList.push(data)
         Toast.success('添加成功')
         wordForm = getDefaultFormWord()
       }
@@ -125,19 +128,17 @@ async function onSubmitWord() {
   })
 }
 
-function delWord(id: string, isBatch = false) {
-  let rIndex2 = list.findIndex(v => v.id === id)
-  if (rIndex2 > -1) {
-    if (id === wordForm.id) {
-      wordForm = getDefaultFormWord()
-    }
-    list.splice(rIndex2, 1)
-  }
-  if (!isBatch) syncDictInMyStudyList()
-}
-
 function batchDel(ids: string[]) {
-  ids.map(v => delWord(v, true))
+  ids.map(id => {
+    let rIndex2 = allList.findIndex(v => v.id === id)
+    if (rIndex2 > -1) {
+      if (id === wordForm.id) {
+        wordForm = getDefaultFormWord()
+      }
+      allList.splice(rIndex2, 1)
+    }
+  })
+  tableRef.value.getData()
   syncDictInMyStudyList()
 }
 
@@ -153,7 +154,7 @@ function word2Str(word) {
   res.phrases = word.phrases.map(v => (v.c + "\n" + v.cn).replaceAll('"', '')).join('\n\n')
   res.synos = word.synos.map(v => (v.pos + v.cn + "\n" + v.ws.join('/')).replaceAll('"', '')).join('\n\n')
   res.relWords = word.relWords.root ? ('词根:' + word.relWords.root + '\n\n' +
-      word.relWords.rels.map(v => (v.pos + "\n" + v.words.map(v => (v.c + ':' + v.cn)).join('\n')).replaceAll('"', '')).join('\n\n')) : ''
+    word.relWords.rels.map(v => (v.pos + "\n" + v.words.map(v => (v.c + ':' + v.cn)).join('\n')).replaceAll('"', '')).join('\n\n')) : ''
   res.etymology = word.etymology.map(v => (v.t + '\n' + v.d).replaceAll('"', '')).join('\n\n')
   return res
 }
@@ -191,17 +192,16 @@ onMounted(async () => {
     runtimeStore.editDict = getDefaultDict()
   } else {
     if (!runtimeStore.editDict.id) {
-      router.push("/word")
+      return router.push("/word")
     } else {
       if (!runtimeStore.editDict.words.length
-          && !runtimeStore.editDict.custom
-          && ![DictId.wordCollect, DictId.wordWrong, DictId.wordKnown].includes(runtimeStore.editDict.en_name || runtimeStore.editDict.id)
+        && !runtimeStore.editDict.custom
+        && ![DictId.wordCollect, DictId.wordWrong, DictId.wordKnown].includes(runtimeStore.editDict.en_name || runtimeStore.editDict.id)
       ) {
         loading = true
         let r = await _getDictDataByUrl(runtimeStore.editDict)
         runtimeStore.editDict = r
       }
-
       if (base.word.bookList.find(book => book.id === runtimeStore.editDict.id)) {
         if (AppEnv.CAN_REQUEST) {
           let res = await detail({id: runtimeStore.editDict.id})
@@ -216,6 +216,9 @@ onMounted(async () => {
       loading = false
     }
   }
+
+  allList = runtimeStore.editDict.words
+  tableRef.value.getData()
 })
 
 function formClose() {
@@ -263,7 +266,6 @@ async function startTest() {
   await base.changeDict(runtimeStore.editDict)
   loading = false
   nav('word-test/' + store.sdict.id)
-
 }
 
 let exportLoading = $ref(false)
@@ -321,22 +323,22 @@ function importData(e) {
 
         if (repeat.length) {
           MessageBox.confirm(
-              '单词"' + repeat.map(v => v.word).join(', ') + '" 已存在，是否覆盖原单词？',
-              '检测到重复单词',
-              () => {
-                repeat.map(v => {
-                  runtimeStore.editDict.words[v.index] = v
-                  delete runtimeStore.editDict.words[v.index]["index"]
-                })
-              },
-              null,
-              () => {
-                tableRef.value.closeImportDialog()
-                e.target.value = ''
-                importLoading = false
-                syncDictInMyStudyList()
-                Toast.success('导入成功！')
-              }
+            '单词"' + repeat.map(v => v.word).join(', ') + '" 已存在，是否覆盖原单词？',
+            '检测到重复单词',
+            () => {
+              repeat.map(v => {
+                runtimeStore.editDict.words[v.index] = v
+                delete runtimeStore.editDict.words[v.index]["index"]
+              })
+            },
+            null,
+            () => {
+              tableRef.value.closeImportDialog()
+              e.target.value = ''
+              importLoading = false
+              syncDictInMyStudyList()
+              Toast.success('导入成功！')
+            }
           )
         } else {
           tableRef.value.closeImportDialog()
@@ -381,11 +383,6 @@ async function exportData() {
   Toast.success(filename + ' 导出成功！')
   exportLoading = false
 }
-
-function searchWord() {
-  console.log('wordForm.word', wordForm.word)
-}
-
 
 watch(() => loading, (val) => {
   if (!val) return
@@ -442,210 +439,243 @@ watch(() => loading, (val) => {
   }, 500)
 })
 
+async function requestList({pageNo, pageSize, searchKey}) {
+  if (AppEnv.CAN_REQUEST) {
+
+  } else {
+    let list = allList
+    let total = allList.length
+    if (searchKey.trim()) {
+      list = allList.filter(v => v.word.toLowerCase().includes(searchKey.trim().toLowerCase()))
+      total = list.length
+    }
+    list = list.slice((pageNo - 1) * pageSize, (pageNo - 1) * pageSize + pageSize)
+    return {list, total}
+  }
+}
+
+function onSort(type: Sort, pageNo: number, pageSize: number) {
+  if (AppEnv.CAN_REQUEST) {
+  } else {
+    let fun = reverse
+    if ([Sort.reverse, Sort.reverseAll].includes(type)) {
+      fun = reverse
+    } else if ([Sort.random, Sort.randomAll].includes(type)) {
+      fun = shuffle
+    }
+    allList = allList.slice(0, pageSize * (pageNo - 1))
+      .concat(fun(allList.slice(pageSize * (pageNo - 1), pageSize * (pageNo - 1) + pageSize)))
+      .concat(allList.slice(pageSize * (pageNo - 1) + pageSize))
+    runtimeStore.editDict.words = allList
+    Toast.success('操作成功')
+    tableRef.value.getData()
+    syncDictInMyStudyList()
+  }
+}
 
 defineRender(() => {
   return (
-      <BasePage>
-        {
-          showBookDetail.value ? <div className="card mb-0 dict-detail-card flex flex-col">
-                <div class="dict-header flex justify-between items-center relative">
-                  <BackIcon class="dict-back z-2"/>
-                  <div class="dict-title absolute page-title text-align-center w-full">{runtimeStore.editDict.name}</div>
-                  <div class="dict-actions flex">
-                    <BaseButton loading={studyLoading || loading} type="info"
-                                onClick={() => isEdit = true}>编辑</BaseButton>
-                    <BaseButton id="study" loading={studyLoading || loading} onClick={addMyStudyList}>学习</BaseButton>
-                    <BaseButton loading={studyLoading || loading} onClick={startTest}>测试</BaseButton>
-                  </div>
+    <BasePage>
+      {
+        showBookDetail.value ? <div className="card mb-0 dict-detail-card flex flex-col">
+            <div class="dict-header flex justify-between items-center relative">
+              <BackIcon class="dict-back z-2"/>
+              <div class="dict-title absolute page-title text-align-center w-full">{runtimeStore.editDict.name}</div>
+              <div class="dict-actions flex">
+                <BaseButton loading={studyLoading || loading} type="info"
+                            onClick={() => isEdit = true}>编辑</BaseButton>
+                <BaseButton id="study" loading={studyLoading || loading} onClick={addMyStudyList}>学习</BaseButton>
+                <BaseButton loading={studyLoading || loading} onClick={startTest}>测试</BaseButton>
+              </div>
+            </div>
+            <div class="text-lg  mt-2">介绍：{runtimeStore.editDict.description}</div>
+            <div class="line my-3"></div>
+
+            {/* 移动端标签页导航 */}
+            {isMob && isOperate && (
+              <div class="tab-navigation mb-3">
+                <div
+                  class={`tab-item ${activeTab === 'list' ? 'active' : ''}`}
+                  onClick={() => activeTab = 'list'}
+                >
+                  单词列表
                 </div>
-                <div class="text-lg  mt-2">介绍：{runtimeStore.editDict.description}</div>
-                <div class="line my-3"></div>
-
-                {/* 移动端标签页导航 */}
-                {isMob && isOperate && (
-                    <div class="tab-navigation mb-3">
-                      <div
-                          class={`tab-item ${activeTab === 'list' ? 'active' : ''}`}
-                          onClick={() => activeTab = 'list'}
-                      >
-                        单词列表
-                      </div>
-                      <div
-                          class={`tab-item ${activeTab === 'edit' ? 'active' : ''}`}
-                          onClick={() => activeTab = 'edit'}
-                      >
-                        {wordForm.id ? '编辑' : '添加'}单词
-                      </div>
-                    </div>
-                )}
-
-                <div class="flex flex-1 overflow-hidden content-area">
-                  <div class={`word-list-section ${isMob && isOperate && activeTab !== 'list' ? 'mobile-hidden' : ''}`}>
-                    <BaseTable
-                        ref={tableRef}
-                        class="h-full"
-                        list={list}
-                        loading={loading}
-                        onUpdate:list={e => list = e}
-                        del={delWord}
-                        batchDel={batchDel}
-                        add={addWord}
-                        onImportData={importData}
-                        onExportData={exportData}
-                        exportLoading={exportLoading}
-                        importLoading={importLoading}
-                    >
-                      {
-                        (val) =>
-                            <WordItem
-                                showTransPop={false}
-                                item={val.item}>
-                              {{
-                                prefix: () => val.checkbox(val.item),
-                                suffix: () => (
-                                    <div class='flex flex-col'>
-                                      <BaseIcon
-                                          class="option-icon"
-                                          onClick={() => editWord(val.item)}
-                                          title="编辑">
-                                        <IconFluentTextEditStyle20Regular/>
-                                      </BaseIcon>
-                                      <PopConfirm title="确认删除？"
-                                                  onConfirm={() => delWord(val.item.id)}
-                                      >
-                                        <BaseIcon
-                                            class="option-icon"
-                                            title="删除">
-                                          <DeleteIcon/>
-                                        </BaseIcon>
-                                      </PopConfirm>
-
-                                    </div>
-                                )
-                              }}
-                            </WordItem>
-                      }
-                    </BaseTable>
-                  </div>
-                  {
-                    isOperate ? (
-                        <div
-                            class={`edit-section flex-1 flex flex-col ${isMob && activeTab !== 'edit' ? 'mobile-hidden' : ''}`}>
-                          <div class="common-title">
-                            {wordForm.id ? '修改' : '添加'}单词
-                          </div>
-                          <Form
-                              class="flex-1 overflow-auto pr-2"
-                              ref={e => wordFormRef = e}
-                              rules={wordRules}
-                              model={wordForm}
-                              label-width="7rem">
-                            <FormItem label="单词" prop="word">
-                              <BaseInput
-                                  modelValue={wordForm.word}
-                                  onUpdate:modelValue={e => wordForm.word = e}
-                              >
-
-                              </BaseInput>
-                            </FormItem>
-                            <FormItem label="英音音标">
-                              <BaseInput
-                                  modelValue={wordForm.phonetic0}
-                                  onUpdate:modelValue={e => wordForm.phonetic0 = e}
-                              />
-                            </FormItem>
-                            <FormItem label="美音音标">
-                              <BaseInput
-                                  modelValue={wordForm.phonetic1}
-                                  onUpdate:modelValue={e => wordForm.phonetic1 = e}/>
-                            </FormItem>
-                            <FormItem label="翻译">
-                              <Textarea
-                                  modelValue={wordForm.trans}
-                                  onUpdate:modelValue={e => wordForm.trans = e}
-                                  placeholder="一行一个翻译，前面词性，后面内容（如n.取消）；多个翻译请换行"
-                                  autosize={{minRows: 6, maxRows: 10}}/>
-                            </FormItem>
-                            <FormItem label="例句">
-                              <Textarea
-                                  modelValue={wordForm.sentences}
-                                  onUpdate:modelValue={e => wordForm.sentences = e}
-                                  placeholder="一行原文，一行译文；多个请换两行"
-                                  autosize={{minRows: 6, maxRows: 10}}/>
-                            </FormItem>
-                            <FormItem label="短语">
-                              <Textarea
-                                  modelValue={wordForm.phrases}
-                                  onUpdate:modelValue={e => wordForm.phrases = e}
-                                  placeholder="一行原文，一行译文；多个请换两行"
-                                  autosize={{minRows: 6, maxRows: 10}}/>
-                            </FormItem>
-                            <FormItem label="同义词">
-                              <Textarea
-                                  modelValue={wordForm.synos}
-                                  onUpdate:modelValue={e => wordForm.synos = e}
-                                  placeholder="请参考已有单词格式"
-                                  autosize={{minRows: 6, maxRows: 20}}/>
-                            </FormItem>
-                            <FormItem label="同根词">
-                              <Textarea
-                                  modelValue={wordForm.relWords}
-                                  onUpdate:modelValue={e => wordForm.relWords = e}
-                                  placeholder="请参考已有单词格式"
-                                  autosize={{minRows: 6, maxRows: 20}}/>
-                            </FormItem>
-                            <FormItem label="词源">
-                              <Textarea
-                                  modelValue={wordForm.etymology}
-                                  onUpdate:modelValue={e => wordForm.etymology = e}
-                                  placeholder="请参考已有单词格式"
-                                  autosize={{minRows: 6, maxRows: 10}}/>
-                            </FormItem>
-                          </Form>
-                          <div class="center">
-                            <BaseButton
-                                type="info"
-                                onClick={closeWordForm}>关闭
-                            </BaseButton>
-                            <BaseButton type="primary"
-                                        onClick={onSubmitWord}>保存
-                            </BaseButton>
-                          </div>
-                        </div>
-                    ) : null
-                  }
-                </div>
-              </div> :
-              <div class="card mb-0 dict-detail-card">
-                <div class="dict-header flex justify-between items-center relative">
-                  <BackIcon class="dict-back z-2" onClick={() => {
-                    if (isAdd) {
-                      router.back()
-                    } else {
-                      isEdit = false
-                    }
-                  }}/>
-                  <div class="dict-title absolute page-title text-align-center w-full">
-                    {runtimeStore.editDict.id ? '修改' : '创建'}词典
-                  </div>
-                </div>
-                <div class="center">
-                  <EditBook
-                      isAdd={isAdd}
-                      isBook={false}
-                      onClose={formClose}
-                      onSubmit={() => isEdit = isAdd = false}
-                  />
+                <div
+                  class={`tab-item ${activeTab === 'edit' ? 'active' : ''}`}
+                  onClick={() => activeTab = 'edit'}
+                >
+                  {wordForm.id ? '编辑' : '添加'}单词
                 </div>
               </div>
-        }
+            )}
 
-        <PracticeSettingDialog
-            showLeftOption
-            modelValue={showPracticeSettingDialog}
-            onUpdate:modelValue={val => (showPracticeSettingDialog = val)}
-            onOk={startPractice}/>
-      </BasePage>
+            <div class="flex flex-1 overflow-hidden content-area">
+              <div class={`word-list-section ${isMob && isOperate && activeTab !== 'list' ? 'mobile-hidden' : ''}`}>
+                <BaseTable
+                  ref={tableRef}
+                  class="h-full"
+                  request={requestList}
+                  onDel={batchDel}
+                  onSort={onSort}
+                  onAdd={addWord}
+                  onImport={importData}
+                  onExport={exportData}
+                  exportLoading={exportLoading}
+                  importLoading={importLoading}
+                >
+                  {
+                    (val) =>
+                      <WordItem
+                        showTransPop={false}
+                        showCollectIcon={false}
+                        showMarkIcon={false}
+                        item={val.item}
+                      >
+                        {{
+                          prefix: () => val.checkbox(val.item),
+                          suffix: () => (
+                            <div class='flex flex-col'>
+                              <BaseIcon
+                                class="option-icon"
+                                onClick={() => editWord(val.item)}
+                                title="编辑">
+                                <IconFluentTextEditStyle20Regular/>
+                              </BaseIcon>
+                              <PopConfirm title="确认删除？"
+                                          onConfirm={() => batchDel([val.item.id])}
+                              >
+                                <BaseIcon
+                                  class="option-icon"
+                                  title="删除">
+                                  <DeleteIcon/>
+                                </BaseIcon>
+                              </PopConfirm>
+                            </div>
+                          )
+                        }}
+                      </WordItem>
+                  }
+                </BaseTable>
+              </div>
+              {
+                isOperate ? (
+                  <div
+                    class={`edit-section flex-1 flex flex-col ${isMob && activeTab !== 'edit' ? 'mobile-hidden' : ''}`}>
+                    <div class="common-title">
+                      {wordForm.id ? '修改' : '添加'}单词
+                    </div>
+                    <Form
+                      class="flex-1 overflow-auto pr-2"
+                      ref={e => wordFormRef = e}
+                      rules={wordRules}
+                      model={wordForm}
+                      label-width="7rem">
+                      <FormItem label="单词" prop="word">
+                        <BaseInput
+                          modelValue={wordForm.word}
+                          onUpdate:modelValue={e => wordForm.word = e}
+                        >
+
+                        </BaseInput>
+                      </FormItem>
+                      <FormItem label="英音音标">
+                        <BaseInput
+                          modelValue={wordForm.phonetic0}
+                          onUpdate:modelValue={e => wordForm.phonetic0 = e}
+                        />
+                      </FormItem>
+                      <FormItem label="美音音标">
+                        <BaseInput
+                          modelValue={wordForm.phonetic1}
+                          onUpdate:modelValue={e => wordForm.phonetic1 = e}/>
+                      </FormItem>
+                      <FormItem label="翻译">
+                        <Textarea
+                          modelValue={wordForm.trans}
+                          onUpdate:modelValue={e => wordForm.trans = e}
+                          placeholder="一行一个翻译，前面词性，后面内容（如n.取消）；多个翻译请换行"
+                          autosize={{minRows: 6, maxRows: 10}}/>
+                      </FormItem>
+                      <FormItem label="例句">
+                        <Textarea
+                          modelValue={wordForm.sentences}
+                          onUpdate:modelValue={e => wordForm.sentences = e}
+                          placeholder="一行原文，一行译文；多个请换两行"
+                          autosize={{minRows: 6, maxRows: 10}}/>
+                      </FormItem>
+                      <FormItem label="短语">
+                        <Textarea
+                          modelValue={wordForm.phrases}
+                          onUpdate:modelValue={e => wordForm.phrases = e}
+                          placeholder="一行原文，一行译文；多个请换两行"
+                          autosize={{minRows: 6, maxRows: 10}}/>
+                      </FormItem>
+                      <FormItem label="同义词">
+                        <Textarea
+                          modelValue={wordForm.synos}
+                          onUpdate:modelValue={e => wordForm.synos = e}
+                          placeholder="请参考已有单词格式"
+                          autosize={{minRows: 6, maxRows: 20}}/>
+                      </FormItem>
+                      <FormItem label="同根词">
+                        <Textarea
+                          modelValue={wordForm.relWords}
+                          onUpdate:modelValue={e => wordForm.relWords = e}
+                          placeholder="请参考已有单词格式"
+                          autosize={{minRows: 6, maxRows: 20}}/>
+                      </FormItem>
+                      <FormItem label="词源">
+                        <Textarea
+                          modelValue={wordForm.etymology}
+                          onUpdate:modelValue={e => wordForm.etymology = e}
+                          placeholder="请参考已有单词格式"
+                          autosize={{minRows: 6, maxRows: 10}}/>
+                      </FormItem>
+                    </Form>
+                    <div class="center">
+                      <BaseButton
+                        type="info"
+                        onClick={closeWordForm}>关闭
+                      </BaseButton>
+                      <BaseButton type="primary"
+                                  onClick={onSubmitWord}>保存
+                      </BaseButton>
+                    </div>
+                  </div>
+                ) : null
+              }
+            </div>
+          </div> :
+          <div class="card mb-0 dict-detail-card">
+            <div class="dict-header flex justify-between items-center relative">
+              <BackIcon class="dict-back z-2" onClick={() => {
+                if (isAdd) {
+                  router.back()
+                } else {
+                  isEdit = false
+                }
+              }}/>
+              <div class="dict-title absolute page-title text-align-center w-full">
+                {runtimeStore.editDict.id ? '修改' : '创建'}词典
+              </div>
+            </div>
+            <div class="center">
+              <EditBook
+                isAdd={isAdd}
+                isBook={false}
+                onClose={formClose}
+                onSubmit={() => isEdit = isAdd = false}
+              />
+            </div>
+          </div>
+      }
+
+      <PracticeSettingDialog
+        showLeftOption
+        modelValue={showPracticeSettingDialog}
+        onUpdate:modelValue={val => (showPracticeSettingDialog = val)}
+        onOk={startPractice}/>
+    </BasePage>
   )
 })
 </script>
@@ -664,7 +694,7 @@ defineRender(() => {
 }
 
 .word-list-section {
-  width: 40%;
+  width: 44%;
 }
 
 .edit-section {

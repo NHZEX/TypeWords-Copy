@@ -1,70 +1,43 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from "vue";
+import { nextTick, ref, watch } from "vue";
 import { useSettingStore } from "@/stores/setting.ts";
-import { getAudioFileUrl, usePlayAudio } from "@/hooks/sound.ts";
 import { getShortcutKey, useEventListener } from "@/hooks/event.ts";
-import {
-  checkAndUpgradeSaveDict,
-  checkAndUpgradeSaveSetting,
-  cloneDeep,
-  loadJsLib,
-  shakeCommonDict,
-  sleep
-} from "@/utils";
-import { DefaultShortcutKeyMap, ShortcutKey, WordPracticeMode } from "@/types/types.ts";
+import { checkAndUpgradeSaveDict, checkAndUpgradeSaveSetting, cloneDeep, loadJsLib, sleep } from "@/utils";
+import { DefaultShortcutKeyMap } from "@/types/types.ts";
 import BaseButton from "@/components/BaseButton.vue";
-import VolumeIcon from "@/components/icon/VolumeIcon.vue";
 import { useBaseStore } from "@/stores/base.ts";
-import { saveAs } from "file-saver";
 import {
-  APP_NAME, APP_VERSION, EMAIL,
-  EXPORT_DATA_KEY, GITHUB, Host, LIB_JS_URL,
+  APP_NAME,
+  APP_VERSION,
+  Host,
+  LIB_JS_URL,
   LOCAL_FILE_KEY,
-  Origin,
   PracticeSaveArticleKey,
-  PracticeSaveWordKey, SAVE_DICT_KEY, SAVE_SETTING_KEY, SoundFileOptions
+  PracticeSaveWordKey
 } from "@/config/env.ts";
-import dayjs from "dayjs";
 import BasePage from "@/components/BasePage.vue";
 import Toast from '@/components/base/toast/Toast.ts'
-import { Option, Select } from "@/components/base/select";
-import Switch from "@/components/base/Switch.vue";
-import Slider from "@/components/base/Slider.vue";
-import RadioGroup from "@/components/base/radio/RadioGroup.vue";
-import Radio from "@/components/base/radio/Radio.vue";
-import InputNumber from "@/components/base/InputNumber.vue";
-import PopConfirm from "@/components/PopConfirm.vue";
-import Textarea from "@/components/base/Textarea.vue";
-import SettingItem from "@/pages/setting/SettingItem.vue";
-import { get, set } from "idb-keyval";
+import { set } from "idb-keyval";
 import { useRuntimeStore } from "@/stores/runtime.ts";
-import { useUserStore } from "@/stores/user.ts";
 import { useExport } from "@/hooks/export.ts";
 import MigrateDialog from "@/components/MigrateDialog.vue";
 import Log from "@/pages/setting/Log.vue";
 import About from "@/components/About.vue";
+import CommonSetting from "@/components/setting/CommonSetting.vue";
+import ArticleSettting from "@/components/setting/ArticleSettting.vue";
+import WordSetting from "@/components/setting/WordSetting.vue";
 
 const emit = defineEmits<{
   toggleDisabledDialogEscKey: [val: boolean]
 }>()
 
-const tabIndex = $ref(4)
+const tabIndex = $ref(0)
 const settingStore = useSettingStore()
 const runtimeStore = useRuntimeStore()
 const store = useBaseStore()
 
 //@ts-ignore
 const gitLastCommitHash = ref(LATEST_COMMIT_HASH);
-const simpleWords = $computed({
-  get: () => store.simpleWords.join(','),
-  set: v => {
-    try {
-      store.simpleWords = v.split(',');
-    } catch (e) {
-
-    }
-  }
-})
 
 let editShortcutKey = $ref('')
 
@@ -238,12 +211,21 @@ function importJson(str: string, notice: boolean = true) {
   }
 }
 
-async function importData(e) {
+let timer = -1
+async function beforeImport() {
   importLoading = true
   await exportData('已自动备份数据', 'TypeWords数据备份.zip')
   await sleep(1500)
+  let d: HTMLDivElement = document.querySelector('#import')
+  d.click()
+  timer = setTimeout(()=>importLoading = false, 1000)
+}
+
+async function importData(e) {
+  clearTimeout(timer)
+  importLoading = true
   let file = e.target.files[0]
-  if (!file) return
+  if (!file) return importLoading = false
   if (file.name.endsWith(".json")) {
     let reader = new FileReader();
     reader.onload = function (v) {
@@ -311,6 +293,18 @@ function transferOk() {
       <div class="flex flex-1 overflow-hidden gap-4">
         <div class="left">
           <div class="tabs">
+            <div class="tab" :class="tabIndex === 0 && 'active'" @click="tabIndex = 0">
+              <IconFluentSettings20Regular width="20"/>
+              <span>通用设置</span>
+            </div>
+            <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1">
+              <IconFluentTextUnderlineDouble20Regular width="20"/>
+              <span>单词设置</span>
+            </div>
+            <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2">
+              <IconFluentBookLetter20Regular width="20"/>
+              <span>文章设置</span>
+            </div>
             <div class="tab" :class="tabIndex === 4 && 'active'" @click="tabIndex = 4">
               <IconFluentDatabasePerson20Regular width="20"/>
               <span>数据管理</span>
@@ -338,6 +332,11 @@ function transferOk() {
         </div>
         <div class="col-line"></div>
         <div class="flex-1  overflow-y-auto overflow-x-hidden pr-4 content">
+
+          <CommonSetting v-if="tabIndex === 0"/>
+          <WordSetting v-if="tabIndex === 1"/>
+          <ArticleSettting v-if="tabIndex === 2"/>
+
 
           <div class="body" v-if="tabIndex === 3">
             <div class="row">
@@ -383,12 +382,13 @@ function transferOk() {
             <div>请注意，导入数据将<b class="text-red"> 完全覆盖 </b>当前所有数据，请谨慎操作。执行导入操作时，会先自动备份当前数据到您的电脑中，供您随时恢复
             </div>
             <div class="flex gap-space mt-3">
-              <div class="import hvr-grow">
-                <BaseButton size="large" :loading="importLoading">导入数据恢复</BaseButton>
-                <input type="file"
-                       accept="application/json,.zip,application/zip"
-                       @change="importData">
-              </div>
+              <BaseButton size="large"
+                          @click="beforeImport"
+                          :loading="importLoading">导入数据恢复</BaseButton>
+              <input type="file"
+                     id="import"
+                     accept="application/json,.zip,application/zip"
+                     @change="importData">
             </div>
 
             <template v-if="isNewHost">
@@ -534,18 +534,6 @@ function transferOk() {
     .line {
       border-bottom: 1px solid #c4c3c3;
     }
-  }
-}
-
-.import {
-  display: inline-flex;
-  position: relative;
-
-  input {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    opacity: 0;
   }
 }
 

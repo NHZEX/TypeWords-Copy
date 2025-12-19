@@ -28,6 +28,7 @@
   --toolbar-width: 50rem;
   --panel-width: 24rem;
 
+  --modal-padding: 1.3rem;
   --space: 0.9rem;
   --stat-gap: 1rem;
   --shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
@@ -199,7 +200,8 @@ html.dark {
   font-family: var(--font-family);
 }
 
-html, body {
+html,
+body {
   //font-size: 1px;
   padding: 0;
   margin: 0;
@@ -275,10 +277,12 @@ a {
     width: .5rem;
     height: .6rem;
   }
+
   ::-webkit-scrollbar-track {
     background: transparent;
     border-radius: .1rem;
   }
+
   ::-webkit-scrollbar-thumb {
     background: var(--color-scrollbar);
     border-radius: .6rem;
@@ -321,7 +325,7 @@ a {
   justify-content: space-between;
   transition: all .3s;
   padding: .6rem;
-  gap: .6rem;
+  gap: .3rem;
   border: 1px solid var(--color-item-border);
 
   .left {
@@ -374,6 +378,7 @@ a {
     align-items: center;
     gap: .5rem;
     color: var(--color-main-text);
+    flex-wrap: wrap;
 
     span {
       flex-shrink: 0;
@@ -381,7 +386,6 @@ a {
 
     .word {
       font-size: 1.2rem;
-      display: flex;
     }
 
     .phonetic {
@@ -439,6 +443,7 @@ a {
 .center {
   @apply flex justify-center items-center;
 }
+
 .center-col {
   @extend .center;
   @apply flex-col;
@@ -499,9 +504,12 @@ a {
 }
 
 @keyframes underline {
-  0%, 100% {
+
+  0%,
+  100% {
     border-left: .1rem solid var(--color-article);
   }
+
   50% {
     border-left: .1rem solid transparent;
   }
@@ -521,4 +529,10 @@ a {
   background: transparent;
   font-size: 16px; // 防止iOS缩放
   color: transparent; // 文字透明
+}
+
+.btn-no-margin {
+  .base-button + .base-button {
+    margin-left: 0 !important;
+  }
 }

@@ -49,6 +49,14 @@ function goHome() {
           <IconFluentCommentEdit20Regular/>
           <span v-if="settingStore.sideExpand">反馈</span>
         </div>
+        <div class="row" @click="router.push('/qa')">
+          <IconFluentQuestionCircle20Regular/>
+          <span v-if="settingStore.sideExpand">帮助</span>
+        </div>
+<!--        <div class="row" @click="router.push('/doc')">-->
+<!--          <IconFluentDocument20Regular/>-->
+<!--          <span v-if="settingStore.sideExpand">资料</span>-->
+<!--        </div>-->
 <!--        <div class="row" @click="router.push('/user')">-->
 <!--          <IconFluentPerson20Regular/>-->
 <!--          <span v-if="settingStore.sideExpand">用户</span>-->
@@ -129,7 +137,7 @@ function goHome() {
     transition: all .5s;
 
     &:hover {
-      background: var(--color-select-bg);
+      background: var(--btn-primary);
       color: white;
     }
 

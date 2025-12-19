@@ -63,7 +63,9 @@ watch(() => model.value, (n) => {
 <template>
   <Dialog
       v-model="model"
-      title="学习设置" :footer="true"
+      title="学习设置"
+      padding
+      :footer="true"
       @ok="changePerDayStudyNumber">
     <div class="target-modal color-main" id="mode">
       <div class="center">
@@ -122,7 +124,7 @@ watch(() => model.value, (n) => {
                 class="mt-1"
                 :max="200" v-model="tempPerDayStudyNumber"/>
       </div>
-      <div class="mb-6 flex gap-space">
+      <div class="flex gap-space">
         <span class="shrink-0 w-20">学习进度</span>
         <div class="flex-1">
           <Slider :min="0"
@@ -156,7 +158,6 @@ watch(() => model.value, (n) => {
 
 .target-modal {
   width: 35rem;
-  padding: 0 var(--space);
 
   :deep(.inner) {
     font-size: 1.8rem;

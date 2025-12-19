@@ -650,7 +650,7 @@ const currentPractice = inject('currentPractice', [])
     <header class="mb-4">
       <div class="title"><span class="font-family text-3xl">{{
           store.sbook.lastLearnIndex + 1
-        }}.</span>{{ props.article.title }}
+        }}. </span>{{ props.article?.title ?? '' }}
       </div>
       <div class="titleTranslate" v-if="settingStore.translate">{{ props.article.titleTranslate }}</div>
     </header>

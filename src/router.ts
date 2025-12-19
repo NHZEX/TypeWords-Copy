@@ -15,6 +15,8 @@ import Login from "@/pages/user/login.vue";
 import User from "@/pages/user/User.vue";
 import VipIntro from "@/pages/user/VipIntro.vue";
 import Feedback from "@/pages/feedback.vue";
+import Qa from "@/pages/qa.vue";
+import Doc from "@/pages/doc.vue";
 // import { useAuthStore } from "@/stores/user.ts";
 
 export const routes: RouteRecordRaw[] = [
@@ -44,7 +46,8 @@ export const routes: RouteRecordRaw[] = [
 
       {path: 'setting', component: Setting},
       {path: 'feedback', component: Feedback},
-
+      {path: 'qa', component: Qa},
+      {path: 'doc', component: Doc},
     ]
   },
   {path: '/batch-edit-article', component: () => import("@/pages/article/BatchEditArticlePage.vue")},

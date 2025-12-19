@@ -26,7 +26,6 @@ let showQQDialog = $ref(false)
 
 <template>
   <div class="center" :class="type === 'vertical' ? 'flex-col gap-1' : 'gap-4'">
-    <ShareIcon v-if="share"/>
 
     <Github v-if="github"/>
 
@@ -50,6 +49,8 @@ let showQQDialog = $ref(false)
         <IconMaterialSymbolsMail class="color-blue"/>
       </BaseIcon>
     </a>
+
+    <ShareIcon v-if="share"/>
   </div>
 
   <Dialog v-model="showXhsDialog" title="小红书">
@@ -76,7 +77,4 @@ let showQQDialog = $ref(false)
 
 </template>
 <style scoped lang="scss">
-.stat-card {
-  @apply text-center bg-gray-900/30 py-4 rounded-2xl;
-}
 </style>

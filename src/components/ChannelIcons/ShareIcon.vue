@@ -250,5 +250,7 @@ const sentence = $computed(() => {
 </template>
 
 <style scoped lang="scss">
-
+.stat-card {
+  @apply text-center bg-gray-900/30 py-4 rounded-2xl;
+}
 </style>
