@@ -453,7 +453,7 @@ function onTypeWrong() {
 }
 
 function savePracticeData() {
-  console.log('savePracticeData')
+  // console.log('savePracticeData')
   localStorage.setItem(PracticeSaveWordKey.key, JSON.stringify({
     version: PracticeSaveWordKey.version,
     val: {

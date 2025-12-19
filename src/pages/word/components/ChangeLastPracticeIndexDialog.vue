@@ -41,7 +41,7 @@ defineEmits<{
       >
         <template v-slot="item">
           <WordItem
-              @click="$emit('ok',item.index)"
+              @click="$emit('ok',item.index-1)"
               :item="item.item"
               :show-translate="false"
               :index="item.index"

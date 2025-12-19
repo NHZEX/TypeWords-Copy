@@ -46,7 +46,7 @@ function scrollViewToCenter(index: number) {
     if (props.list.length > limit) {
       listRef?.scrollToItem(index)
     } else {
-      listRef?.children[index]?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      listRef?.children[index]?.scrollIntoView({block: 'center', behavior: 'smooth'})
     }
   })
 }
@@ -59,7 +59,7 @@ watch(
       scrollViewToCenter(n)
     }
   },
-  { immediate: true }
+  {immediate: true}
 )
 
 watch(
@@ -101,7 +101,7 @@ function scrollToItem(index: number) {
     if (props.list.length > limit) {
       listRef?.scrollToItem(index)
     } else {
-      listRef?.children[index]?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      listRef?.children[index]?.scrollIntoView({block: 'center', behavior: 'smooth'})
     }
   })
 }
@@ -110,7 +110,7 @@ function itemIsActive(item: any, index: number) {
   return props.activeId ? props.activeId == item.id : props.activeIndex === index
 }
 
-defineExpose({ scrollToBottom, scrollToItem })
+defineExpose({scrollToBottom, scrollToItem})
 </script>
 
 <template>
@@ -128,19 +128,18 @@ defineExpose({ scrollToBottom, scrollToItem })
         :size-dependencies="[item.id]"
         :data-index="index"
       >
-        <div class="list-item-wrapper" v-for="(item, index) in props.list" :key="item.title">
-          <div @click="emit('click', { item, index })">
-            <slot :item="item" :index="index" :active="itemIsActive(item, index)"></slot>
-          </div>
+        <div class="list-item-wrapper"
+             @click="emit('click', { item, index })">
+          <slot :item="item" :index="index+1" :active="itemIsActive(item, index)"></slot>
         </div>
       </DynamicScrollerItem>
     </template>
   </DynamicScroller>
   <div v-else class="scroller" style="overflow: auto" ref="listRef">
-    <div class="list-item-wrapper" v-for="(item, index) in props.list" :key="item.title">
-      <div @click="emit('click', { item, index })">
-        <slot :item="item" :index="index" :active="itemIsActive(item, index)"></slot>
-      </div>
+    <div class="list-item-wrapper" v-for="(item, index) in props.list" :key="item.title"
+         @click="emit('click', { item, index })"
+    >
+      <slot :item="item" :index="index+1" :active="itemIsActive(item, index)"></slot>
     </div>
   </div>
 </template>
