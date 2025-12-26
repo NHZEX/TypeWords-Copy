@@ -47,14 +47,7 @@ import { getDefaultDict, getDefaultWord } from '@/types/func.ts'
 import ConflictNotice from '@/components/ConflictNotice.vue'
 import PracticeLayout from '@/components/PracticeLayout.vue'
 
-import {
-  AppEnv,
-  DICT_LIST,
-  IS_DEV,
-  LIB_JS_URL,
-  PracticeSaveWordKey,
-  TourConfig,
-} from '@/config/env.ts'
+import { AppEnv, DICT_LIST, IS_DEV, LIB_JS_URL, TourConfig } from '@/config/env.ts'
 import { ToastInstance } from '@/components/base/toast/type.ts'
 import { watchOnce } from '@vueuse/core'
 import { setUserDictProp } from '@/apis'
@@ -63,6 +56,7 @@ import OptionButton from '@/components/base/OptionButton.vue'
 import Radio from '@/components/base/radio/Radio.vue'
 import RadioGroup from '@/components/base/radio/RadioGroup.vue'
 import GroupList from '@/pages/word/components/GroupList.vue'
+import { getPracticeWordCache, PRACTICE_WORD_CACHE, setPracticeWordCache } from '@/utils/cache.ts'
 
 const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
 const settingStore = useSettingStore()
@@ -208,23 +202,12 @@ useStartKeyboardEventListener()
 useDisableEventListener(() => loading)
 
 function initData(initVal: TaskWords, init: boolean = false) {
-  let d = localStorage.getItem(PracticeSaveWordKey.key)
+  let d = getPracticeWordCache()
   if (d && init) {
-    try {
-      //todo 记得删除
-      if (IS_DEV) {
-        throw new Error('开发环境，抛出错误跳过缓存')
-      }
-      let obj = JSON.parse(d)
-      let s = obj.val
-      taskWords = Object.assign(taskWords, s.taskWords)
-      //这里直接赋值的话，provide后的inject获取不到最新值
-      data = Object.assign(data, s.practiceData)
-      statStore.$patch(s.statStoreData)
-    } catch (e) {
-      localStorage.removeItem(PracticeSaveWordKey.key)
-      initData(initVal, true)
-    }
+    taskWords = Object.assign(taskWords, d.taskWords)
+    //这里直接赋值的话，provide后的inject获取不到最新值
+    data = Object.assign(data, d.practiceData)
+    statStore.$patch(d.statStoreData)
   } else {
     // taskWords = initVal
     //不能直接赋值，会导致 inject 的数据为默认值
@@ -428,7 +411,7 @@ async function next(isTyping: boolean = true) {
         console.log('自由模式，全完学完了')
         showStatDialog = true
         clearInterval(timer)
-        setTimeout(() => localStorage.removeItem(PracticeSaveWordKey.key), 300)
+        setTimeout(() => setPracticeWordCache(null), 300)
       }
     } else {
       data.index++
@@ -466,7 +449,7 @@ async function next(isTyping: boolean = true) {
           console.log('全完学完了')
           showStatDialog = true
           clearInterval(timer)
-          setTimeout(() => localStorage.removeItem(PracticeSaveWordKey.key), 300)
+          setTimeout(() => setPracticeWordCache(null), 300)
         }
 
         if (settingStore.wordPracticeMode === WordPracticeMode.System) {
@@ -557,17 +540,11 @@ function onTypeWrong() {
 
 function savePracticeData() {
   // console.log('savePracticeData')
-  localStorage.setItem(
-    PracticeSaveWordKey.key,
-    JSON.stringify({
-      version: PracticeSaveWordKey.version,
-      val: {
-        taskWords,
-        practiceData: data,
-        statStoreData: statStore.$state,
-      },
-    })
-  )
+  setPracticeWordCache({
+    taskWords,
+    practiceData: data,
+    statStoreData: statStore.$state,
+  })
 }
 
 watch(() => data.index, savePracticeData)

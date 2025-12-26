@@ -351,8 +351,8 @@ export const WordPracticeStageNameMap: Record<WordPracticeStage, string> = {
 }
 
 export const WordPracticeModeNameMap: Record<WordPracticeMode, string> = {
-  [WordPracticeMode.System]: '智能学习',
-  [WordPracticeMode.Free]: '自由',
+  [WordPracticeMode.System]: '学习',
+  [WordPracticeMode.Free]: '自由练习',
   [WordPracticeMode.IdentifyOnly]: '自测',
   [WordPracticeMode.DictationOnly]: '默写',
   [WordPracticeMode.ListenOnly]: '听写',

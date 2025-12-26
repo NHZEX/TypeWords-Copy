@@ -75,10 +75,18 @@ watch(model, async newVal => {
     })
 
     //如果 shuffle 数组不为空，就说明是复习，不用修改 lastLearnIndex
-    //todo 
     if (settingStore.wordPracticeMode !== WordPracticeMode.Shuffle) {
-      store.sdict.lastLearnIndex = store.sdict.lastLearnIndex + store.sdict.perDayStudyNumber
-      if (store.sdict.lastLearnIndex >= store.sdict.length - 1) {
+      store.sdict.lastLearnIndex = store.sdict.lastLearnIndex + statStore.newWordNumber
+      // 检查已忽略的单词数量，是否全部完成
+      let ignoreList = [store.allIgnoreWords, store.knownWords][
+        settingStore.ignoreSimpleWord ? 0 : 1
+      ]
+      // 忽略单词数
+      const ignoreCount = ignoreList.filter(word =>
+        store.sdict.words.some(w => w.word.toLowerCase() === word)
+      ).length
+      // 如果lastLearnIndex已经超过可学单词数，则判定完成
+      if (store.sdict.lastLearnIndex + ignoreCount >= store.sdict.length) {
         dictIsEnd = true
         store.sdict.complete = true
         store.sdict.lastLearnIndex = store.sdict.length

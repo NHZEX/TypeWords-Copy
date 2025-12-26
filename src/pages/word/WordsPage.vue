@@ -29,19 +29,13 @@ import PracticeSettingDialog from '@/pages/word/components/PracticeSettingDialog
 import ChangeLastPracticeIndexDialog from '@/pages/word/components/ChangeLastPracticeIndexDialog.vue'
 import { useSettingStore } from '@/stores/setting.ts'
 import { useFetch } from '@vueuse/core'
-import {
-  AppEnv,
-  DICT_LIST,
-  Host,
-  LIB_JS_URL,
-  PracticeSaveWordKey,
-  TourConfig,
-} from '@/config/env.ts'
+import { AppEnv, DICT_LIST, Host, LIB_JS_URL, Origin, TourConfig } from '@/config/env.ts'
 import { myDictList } from '@/apis'
 import PracticeWordListDialog from '@/pages/word/components/PracticeWordListDialog.vue'
 import ShufflePracticeSettingDialog from '@/pages/word/components/ShufflePracticeSettingDialog.vue'
 import { deleteDict } from '@/apis/dict.ts'
 import OptionButton from '@/components/base/OptionButton.vue'
+import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
 
 const store = useBaseStore()
 const settingStore = useSettingStore()
@@ -107,16 +101,10 @@ async function init() {
     }
   }
   if (!currentStudy.new.length && store.sdict.words.length) {
-    let d = localStorage.getItem(PracticeSaveWordKey.key)
+    let d = getPracticeWordCache()
     if (d) {
-      try {
-        let obj = JSON.parse(d)
-        currentStudy = obj.val.taskWords
-        isSaveData = true
-      } catch (e) {
-        localStorage.removeItem(PracticeSaveWordKey.key)
-        currentStudy = getCurrentStudyWord()
-      }
+      currentStudy = d.taskWords
+      isSaveData = true
     } else {
       currentStudy = getCurrentStudyWord()
     }
@@ -124,19 +112,18 @@ async function init() {
   loading = false
 }
 
-function startPractice(practiceMode?: WordPracticeMode): void {
+function startPractice(practiceMode: WordPracticeMode, resetCache: boolean = false): void {
   if (store.sdict.id) {
     if (!store.sdict.words.length) {
       Toast.warning('没有单词可学习！')
       return
     }
 
-    //todo 临时处理
-    localStorage.removeItem(PracticeSaveWordKey.key)
-    // 如果传入了独立模式，临时设置 wordPracticeMode
-    if (practiceMode !== undefined) {
-      settingStore.wordPracticeMode = practiceMode
+    if (resetCache) {
+      setPracticeWordCache(null)
     }
+    settingStore.wordPracticeMode = practiceMode
+
     window.umami?.track('startStudyWord', {
       name: store.sdict.name,
       index: store.sdict.lastLearnIndex,
@@ -152,6 +139,21 @@ function startPractice(practiceMode?: WordPracticeMode): void {
     window.umami?.track('no-dict')
     Toast.warning('请先选择一本词典')
   }
+}
+
+function freePractice() {
+  startPractice(
+    WordPracticeMode.Free,
+    settingStore.wordPracticeMode !== WordPracticeMode.Free && isSaveData
+  )
+}
+function systemPractice() {
+  startPractice(
+    settingStore.wordPracticeMode === WordPracticeMode.Free
+      ? WordPracticeMode.System
+      : settingStore.wordPracticeMode,
+    settingStore.wordPracticeMode === WordPracticeMode.Free && isSaveData
+  )
 }
 
 let showPracticeSettingDialog = $ref(false)
@@ -220,7 +222,7 @@ function check(cb: Function) {
 async function savePracticeSetting() {
   Toast.success('修改成功')
   isSaveData = false
-  localStorage.removeItem(PracticeSaveWordKey.key)
+  setPracticeWordCache(null)
   await store.changeDict(runtimeStore.editDict)
   currentStudy = getCurrentStudyWord()
 }
@@ -235,7 +237,7 @@ async function onShufflePracticeSettingOk(total) {
     complete: store.sdict.complete,
   })
   isSaveData = false
-  localStorage.removeItem(PracticeSaveWordKey.key)
+  setPracticeWordCache(null)
   settingStore.wordPracticeMode = WordPracticeMode.Shuffle
   let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
   currentStudy.shuffle = shuffle(
@@ -257,7 +259,7 @@ async function saveLastPracticeIndex(e) {
   // runtimeStore.editDict.complete = e >= runtimeStore.editDict.length - 1
   showChangeLastPracticeIndexDialog = false
   isSaveData = false
-  localStorage.removeItem(PracticeSaveWordKey.key)
+  setPracticeWordCache(null)
   await store.changeDict(runtimeStore.editDict)
   currentStudy = getCurrentStudyWord()
 }
@@ -267,14 +269,24 @@ const { data: recommendDictList, isFetching } = useFetch(
 ).json()
 
 let isNewHost = $ref(window.location.host === Host)
+
+const systemPracticeText = $computed(() => {
+  if (settingStore.wordPracticeMode === WordPracticeMode.Free) {
+    return '开始学习'
+  } else {
+    return isSaveData
+      ? '继续' + WordPracticeModeNameMap[settingStore.wordPracticeMode]
+      : '开始' + WordPracticeModeNameMap[settingStore.wordPracticeMode]
+  }
+})
 </script>
 
 <template>
   <BasePage>
     <div class="mb-4" v-if="!isNewHost">
       新域名已启用，后续请访问
-      <a href="https://typewords.cc/words?from_old_site=1">https://typewords.cc</a>。当前 2study.top
-      域名将在不久后停止使用
+      <a class="mr-4" :href="`${Origin}/words?from_old_site=1`">{{ Origin }}</a
+      >当前 2study.top 域名将在不久后停止使用
     </div>
 
     <div class="card flex flex-col md:flex-row gap-4">
@@ -393,79 +405,91 @@ let isNewHost = $ref(window.location.host === Host)
           </div>
         </div>
         <div class="flex items-end mt-4 gap-4 btn-no-margin">
-          <OptionButton class="flex-2">
+          <OptionButton
+            :class="
+              settingStore.wordPracticeMode !== WordPracticeMode.Free
+                ? 'flex-1 orange-btn'
+                : 'primary-btn'
+            "
+          >
             <BaseButton
               size="large"
+              :type="settingStore.wordPracticeMode !== WordPracticeMode.Free ? 'orange' : 'primary'"
               :disabled="!store.sdict.id"
               :loading="loading"
-              @click="startPractice(settingStore.wordPracticeMode)"
+              @click="systemPractice"
             >
               <div class="flex items-center gap-2">
-                <span class="line-height-[2]">{{
-                  isSaveData
-                    ? `继续${WordPracticeModeNameMap[settingStore.wordPracticeMode]}`
-                    : `开始${WordPracticeModeNameMap[settingStore.wordPracticeMode]}`
-                }}</span>
+                <span class="line-height-[2]">{{ systemPracticeText }}</span>
                 <IconFluentArrowCircleRight16Regular class="text-xl" />
               </div>
             </BaseButton>
             <template #options>
               <BaseButton
-                class="w-23"
-                v-if="settingStore.wordPracticeMode !== WordPracticeMode.System"
-                @click="startPractice(WordPracticeMode.System)"
+                class="w-full"
+                v-if="
+                  settingStore.wordPracticeMode !== WordPracticeMode.System &&
+                  settingStore.wordPracticeMode !== WordPracticeMode.Free
+                "
+                @click="startPractice(WordPracticeMode.System,true)"
               >
-                {{ WordPracticeModeNameMap[WordPracticeMode.System] }}
+                智能学习
+              </BaseButton>
+
+              <BaseButton
+                class="w-full"
+                :disabled="!currentStudy.review.length && !currentStudy.write.length"
+                @click="startPractice(WordPracticeMode.Review,true)"
+              >
+                复习
               </BaseButton>
               <BaseButton
-                class="w-23"
+                class="w-full"
+                :disabled="store.sdict.lastLearnIndex < 10"
+                @click="check(() => (showShufflePracticeSettingDialog = true))"
+              >
+                随机复习
+              </BaseButton>
+
+              <BaseButton
+                class="w-full"
                 v-if="settingStore.wordPracticeMode !== WordPracticeMode.IdentifyOnly"
-                @click="startPractice(WordPracticeMode.IdentifyOnly)"
+                @click="startPractice(WordPracticeMode.IdentifyOnly,true)"
               >
                 {{ WordPracticeModeNameMap[WordPracticeMode.IdentifyOnly] }}
               </BaseButton>
               <BaseButton
-                class="w-23"
+                class="w-full"
                 v-if="settingStore.wordPracticeMode !== WordPracticeMode.ListenOnly"
-                @click="startPractice(WordPracticeMode.ListenOnly)"
+                @click="startPractice(WordPracticeMode.ListenOnly,true)"
               >
                 {{ WordPracticeModeNameMap[WordPracticeMode.ListenOnly] }}
               </BaseButton>
               <BaseButton
-                class="w-23"
+                class="w-full"
                 v-if="settingStore.wordPracticeMode !== WordPracticeMode.DictationOnly"
-                @click="startPractice(WordPracticeMode.DictationOnly)"
+                @click="startPractice(WordPracticeMode.DictationOnly,true)"
               >
                 {{ WordPracticeModeNameMap[WordPracticeMode.DictationOnly] }}
               </BaseButton>
             </template>
           </OptionButton>
 
-          <OptionButton class="flex-1" v-if="currentStudy.new.length">
-            <BaseButton
-              size="large"
-              :loading="loading"
-              @click="startPractice(WordPracticeMode.Review)"
-            >
-              复习
-            </BaseButton>
-            <template #options>
-              <BaseButton @click="check(() => (showShufflePracticeSettingDialog = true))">
-                随机复习
-              </BaseButton>
-            </template>
-          </OptionButton>
           <BaseButton
-            v-else
+            :class="settingStore.wordPracticeMode === WordPracticeMode.Free ? 'flex-1' : ''"
+            :type="settingStore.wordPracticeMode === WordPracticeMode.Free ? 'orange' : 'primary'"
             size="large"
-            @click="check(() => (showShufflePracticeSettingDialog = true))"
+            :loading="loading"
+            @click="freePractice()"
           >
-            随机复习
-          </BaseButton>
-
-          <BaseButton size="large" :loading="loading" @click="startPractice(WordPracticeMode.Free)">
             <div class="flex items-center gap-2">
-              <span class="line-height-[2]">自由练习</span>
+              <span class="line-height-[2]">
+                {{
+                  settingStore.wordPracticeMode === WordPracticeMode.Free && isSaveData
+                    ? '继续自由练习'
+                    : '自由练习'
+                }}
+              </span>
               <IconStreamlineColorPenDrawFlat class="text-xl" />
             </div>
           </BaseButton>

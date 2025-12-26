@@ -15,7 +15,7 @@ import Form from '@/components/base/form/Form.vue'
 import FormItem from '@/components/base/form/FormItem.vue'
 import Toast from '@/components/base/toast/Toast.ts'
 import DeleteIcon from '@/components/icon/DeleteIcon.vue'
-import { AppEnv, LIB_JS_URL, PracticeSaveWordKey, TourConfig } from '@/config/env.ts'
+import { AppEnv, LIB_JS_URL, TourConfig } from '@/config/env.ts'
 import { getCurrentStudyWord } from '@/hooks/dict.ts'
 import EditBook from '@/pages/article/components/EditBook.vue'
 import PracticeSettingDialog from '@/pages/word/components/PracticeSettingDialog.vue'
@@ -39,6 +39,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { wordDelete } from '@/apis/words.ts'
 import { copyOfficialDict } from '@/apis/dict.ts'
+import {PRACTICE_WORD_CACHE} from "@/utils/cache.ts";
 
 const runtimeStore = useRuntimeStore()
 const base = useBaseStore()
@@ -289,7 +290,7 @@ const { nav } = useNav()
 
 //todo 可以和首页合并
 async function startPractice(query = {}) {
-  localStorage.removeItem(PracticeSaveWordKey.key)
+  localStorage.removeItem(PRACTICE_WORD_CACHE.key)
   studyLoading = true
   await base.changeDict(runtimeStore.editDict)
   studyLoading = false

@@ -18,7 +18,8 @@ import {useWordOptions} from "@/hooks/dict.ts";
 import nlp from "compromise/three";
 import {nanoid} from "nanoid";
 import {usePracticeStore} from "@/stores/practice.ts";
-import {PracticeSaveArticleKey} from "@/config/env.ts";
+
+import {PRACTICE_ARTICLE_CACHE} from "@/utils/cache.ts";
 
 interface IProps {
   article: Article,
@@ -89,8 +90,8 @@ const statStore = usePracticeStore()
 const isMob = isMobile()
 
 watch([() => sectionIndex, () => sentenceIndex, () => wordIndex, () => stringIndex], ([a, b, c,]) => {
-  localStorage.setItem(PracticeSaveArticleKey.key, JSON.stringify({
-    version: PracticeSaveArticleKey.version,
+  localStorage.setItem(PRACTICE_ARTICLE_CACHE.key, JSON.stringify({
+    version: PRACTICE_ARTICLE_CACHE.version,
     val: {
       practiceData: {
         sectionIndex,
@@ -124,7 +125,7 @@ watch(() => isEnd, n => {
 function init() {
   if (!props.article.id) return
   isSpace = isEnd = false
-  let d = localStorage.getItem(PracticeSaveArticleKey.key)
+  let d = localStorage.getItem(PRACTICE_ARTICLE_CACHE.key)
   if (d) {
     try {
       let obj = JSON.parse(d)
@@ -132,7 +133,7 @@ function init() {
       statStore.$patch(data.statStoreData)
       jump(data.practiceData.sectionIndex, data.practiceData.sentenceIndex, data.practiceData.wordIndex)
     } catch (e) {
-      localStorage.removeItem(PracticeSaveArticleKey.key)
+      localStorage.removeItem(PRACTICE_ARTICLE_CACHE.key)
       init()
     }
   } else {
@@ -411,7 +412,7 @@ function onTyping(e: KeyboardEvent) {
     e.preventDefault()
   } catch (e) {
     //todo 上报
-    localStorage.removeItem(PracticeSaveArticleKey.key)
+    localStorage.removeItem(PRACTICE_ARTICLE_CACHE.key)
     init()
   } finally {
     isTyping = false

@@ -27,9 +27,10 @@ import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import isoWeek from 'dayjs/plugin/isoWeek'
 import { useFetch } from "@vueuse/core";
-import { AppEnv, DICT_LIST, Host, LIB_JS_URL, PracticeSaveArticleKey, TourConfig } from "@/config/env.ts";
+import { AppEnv, DICT_LIST, Host, LIB_JS_URL, TourConfig } from "@/config/env.ts";
 import { myDictList } from "@/apis";
 import { useSettingStore } from "@/stores/setting.ts";
+import {PRACTICE_ARTICLE_CACHE} from "@/utils/cache.ts";
 
 dayjs.extend(isoWeek)
 dayjs.extend(isBetween);
@@ -58,7 +59,7 @@ async function init() {
       store.article.bookList[store.article.studyIndex] = await _getDictDataByUrl(store.sbook, DictType.article)
     }
   }
-  let d = localStorage.getItem(PracticeSaveArticleKey.key)
+  let d = localStorage.getItem(PRACTICE_ARTICLE_CACHE.key)
   if (d) {
     try {
       let obj = JSON.parse(d)
@@ -73,7 +74,7 @@ async function init() {
       }
       isSaveData = true
     } catch (e) {
-      localStorage.removeItem(PracticeSaveArticleKey.key)
+      localStorage.removeItem(PRACTICE_ARTICLE_CACHE.key)
     }
   }
 }

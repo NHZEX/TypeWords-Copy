@@ -33,10 +33,11 @@ import ConflictNotice from "@/components/ConflictNotice.vue";
 import { useRoute, useRouter } from "vue-router";
 import PracticeLayout from "@/components/PracticeLayout.vue";
 import ArticleAudio from "@/pages/article/components/ArticleAudio.vue";
-import { AppEnv, DICT_LIST, LIB_JS_URL, PracticeSaveArticleKey, TourConfig } from "@/config/env.ts";
+import { AppEnv, DICT_LIST, LIB_JS_URL, TourConfig } from "@/config/env.ts";
 import { addStat, setUserDictProp } from "@/apis";
 import { useRuntimeStore } from "@/stores/runtime.ts";
 import SettingDialog from "@/components/setting/SettingDialog.vue";
+import {PRACTICE_ARTICLE_CACHE} from "@/utils/cache.ts";
 
 const store = useBaseStore()
 const runtimeStore = useRuntimeStore()
@@ -222,7 +223,7 @@ useStartKeyboardEventListener()
 useDisableEventListener(() => loading)
 
 function savePracticeData(init = true, regenerate = true) {
-  let d = localStorage.getItem(PracticeSaveArticleKey.key)
+  let d = localStorage.getItem(PRACTICE_ARTICLE_CACHE.key)
   if (d) {
     try {
       let obj = JSON.parse(d)
@@ -244,14 +245,14 @@ function savePracticeData(init = true, regenerate = true) {
       }
 
       obj.val.statStoreData = statStore.$state
-      localStorage.setItem(PracticeSaveArticleKey.key, JSON.stringify(obj))
+      localStorage.setItem(PRACTICE_ARTICLE_CACHE.key, JSON.stringify(obj))
     } catch (e) {
-      localStorage.removeItem(PracticeSaveArticleKey.key)
+      localStorage.removeItem(PRACTICE_ARTICLE_CACHE.key)
       regenerate && savePracticeData()
     }
   } else {
-    localStorage.setItem(PracticeSaveArticleKey.key, JSON.stringify({
-      version: PracticeSaveArticleKey.version,
+    localStorage.setItem(PRACTICE_ARTICLE_CACHE.key, JSON.stringify({
+      version: PRACTICE_ARTICLE_CACHE.version,
       val: {
         practiceData: {
           sectionIndex: 0,
@@ -300,7 +301,7 @@ function setArticle(val: Article) {
 async function complete() {
   clearInterval(timer)
   setTimeout(() => {
-    localStorage.removeItem(PracticeSaveArticleKey.key)
+    localStorage.removeItem(PRACTICE_ARTICLE_CACHE.key)
   }, 1500)
 
   //todo 有空了改成实时保存

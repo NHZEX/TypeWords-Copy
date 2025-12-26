@@ -1,22 +1,22 @@
-import {loadJsLib, shakeCommonDict} from "@/utils";
+import { loadJsLib, shakeCommonDict } from '@/utils'
 import {
   APP_NAME,
   APP_VERSION,
-  EXPORT_DATA_KEY, LIB_JS_URL,
+  EXPORT_DATA_KEY,
+  LIB_JS_URL,
   LOCAL_FILE_KEY,
   Origin,
-  PracticeSaveArticleKey,
-  PracticeSaveWordKey,
   SAVE_DICT_KEY,
-  SAVE_SETTING_KEY
-} from "@/config/env.ts";
-import {get} from "idb-keyval";
-import {saveAs} from "file-saver";
-import dayjs from "dayjs";
-import Toast from "@/components/base/toast/Toast.ts";
-import {useBaseStore} from "@/stores/base.ts";
-import {useSettingStore} from "@/stores/setting.ts";
-import {ref} from "vue";
+  SAVE_SETTING_KEY,
+} from '@/config/env.ts'
+import { get } from 'idb-keyval'
+import { saveAs } from 'file-saver'
+import dayjs from 'dayjs'
+import Toast from '@/components/base/toast/Toast.ts'
+import { useBaseStore } from '@/stores/base.ts'
+import { useSettingStore } from '@/stores/setting.ts'
+import { ref } from 'vue'
+import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '@/utils/cache.ts'
 
 export function useExport() {
   const store = useBaseStore()
@@ -24,60 +24,61 @@ export function useExport() {
 
   let loading = ref(false)
 
-  async function exportData(notice = '导出成功！', fileName = `${APP_NAME}-User-Data-${dayjs().format('YYYY-MM-DD HH-mm-ss')}.zip`) {
+  async function exportData(
+    notice = '导出成功！',
+    fileName = `${APP_NAME}-User-Data-${dayjs().format('YYYY-MM-DD HH-mm-ss')}.zip`
+  ) {
     if (loading.value) return
     loading.value = true
     try {
-      const JSZip = await loadJsLib('JSZip', LIB_JS_URL.JSZIP);
+      const JSZip = await loadJsLib('JSZip', LIB_JS_URL.JSZIP)
       let data = {
         version: EXPORT_DATA_KEY.version,
         val: {
           setting: {
             version: SAVE_SETTING_KEY.version,
-            val: settingStore.$state
+            val: settingStore.$state,
           },
           dict: {
             version: SAVE_DICT_KEY.version,
-            val: shakeCommonDict(store.$state)
+            val: shakeCommonDict(store.$state),
           },
-          [PracticeSaveWordKey.key]: {
-            version: PracticeSaveWordKey.version,
-            val: {}
+          [PRACTICE_WORD_CACHE.key]: {
+            version: PRACTICE_WORD_CACHE.version,
+            val: {},
           },
-          [PracticeSaveArticleKey.key]: {
-            version: PracticeSaveArticleKey.version,
-            val: {}
+          [PRACTICE_ARTICLE_CACHE.key]: {
+            version: PRACTICE_ARTICLE_CACHE.version,
+            val: {},
           },
-          [APP_VERSION.key]: -1
-        }
+          [APP_VERSION.key]: -1,
+        },
       }
-      let d = localStorage.getItem(PracticeSaveWordKey.key)
+      let d = localStorage.getItem(PRACTICE_WORD_CACHE.key)
       if (d) {
         try {
-          data.val[PracticeSaveWordKey.key] = JSON.parse(d)
-        } catch (e) {
-        }
+          data.val[PRACTICE_WORD_CACHE.key] = JSON.parse(d)
+        } catch (e) {}
       }
-      let d1 = localStorage.getItem(PracticeSaveArticleKey.key)
+      let d1 = localStorage.getItem(PRACTICE_ARTICLE_CACHE.key)
       if (d1) {
         try {
-          data.val[PracticeSaveArticleKey.key] = JSON.parse(d1)
-        } catch (e) {
-        }
+          data.val[PRACTICE_ARTICLE_CACHE.key] = JSON.parse(d1)
+        } catch (e) {}
       }
       let r = await get(APP_VERSION.key)
       data.val[APP_VERSION.key] = r
 
-      const zip = new JSZip();
-      zip.file("data.json", JSON.stringify(data));
+      const zip = new JSZip()
+      zip.file('data.json', JSON.stringify(data))
 
-      const mp3 = zip.folder("mp3");
-      const allRecords = await get(LOCAL_FILE_KEY);
+      const mp3 = zip.folder('mp3')
+      const allRecords = await get(LOCAL_FILE_KEY)
       for (const rec of allRecords ?? []) {
-        mp3.file(rec.id + ".mp3", rec.file);
+        mp3.file(rec.id + '.mp3', rec.file)
       }
-      let content = await zip.generateAsync({type: "blob"})
-      saveAs(content, fileName);
+      let content = await zip.generateAsync({ type: 'blob' })
+      saveAs(content, fileName)
       notice && Toast.success(notice)
       return content
     } catch (e) {

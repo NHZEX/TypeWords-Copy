@@ -3,7 +3,6 @@ import { WordPracticeModeStageMap, WordPracticeStage, WordPracticeStageNameMap }
 import { useSettingStore } from './setting'
 
 export interface PracticeState {
-  step: number
   stage: WordPracticeStage
   startDate: number
   spend: number
@@ -18,7 +17,6 @@ export interface PracticeState {
 export const usePracticeStore = defineStore('practice', {
   state: (): PracticeState => {
     return {
-      step: 0,
       stage: WordPracticeStage.FollowWriteNewWord,
       spend: 0,
       startDate: Date.now(),

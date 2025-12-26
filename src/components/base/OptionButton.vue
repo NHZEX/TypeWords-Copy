@@ -1,13 +1,13 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="w-full flex box-border cp color-white">
+  <div class="flex box-border cp color-white">
     <div class="option-wrap">
       <slot></slot>
     </div>
     <div class="relative group">
       <div
-        class="w-10 rounded-r-lg h-full center bg-[var(--btn-primary)] hover:bg-gray border-solid border-1 border-l-gray/50 border-transparent box-border transition-all duration-300"
+        class="more w-10 rounded-r-lg h-full center border-solid border-1 border-l-gray/50 border-transparent box-border transition-all duration-300"
       >
         <IconFluentChevronDown20Regular />
       </div>
@@ -26,8 +26,28 @@
   display: flex;
   :deep(.base-button) {
     width: 100%;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+}
+
+.primary-btn {
+  .more {
+    background: var(--btn-primary);
+    &:hover {
+      background: var(--btn-primary-hover);
+    }
+  }
+}
+
+.orange-btn {
+  .more {
+    background: var(--btn-orange);
+    color: black;
+    border-left-color: black;
+    &:hover {
+      background: var(--btn-orange-hover);
+    }
   }
 }
 </style>

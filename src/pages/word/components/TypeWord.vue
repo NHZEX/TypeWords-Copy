@@ -1,21 +1,26 @@
 <script setup lang="ts">
-import { ShortcutKey, Word, WordPracticeType } from "@/types/types.ts";
-import VolumeIcon from "@/components/icon/VolumeIcon.vue";
-import { useSettingStore } from "@/stores/setting.ts";
-import { usePlayBeep, usePlayCorrect, usePlayKeyboardAudio, usePlayWordAudio } from "@/hooks/sound.ts";
-import { emitter, EventKey, useEvents } from "@/utils/eventBus.ts";
-import { onMounted, onUnmounted, watch } from "vue";
-import SentenceHightLightWord from "@/pages/word/components/SentenceHightLightWord.vue";
-import { usePracticeStore } from "@/stores/practice.ts";
-import { getDefaultWord } from "@/types/func.ts";
-import { _nextTick, last } from "@/utils";
-import BaseButton from "@/components/BaseButton.vue";
-import Space from "@/pages/article/components/Space.vue";
-import Toast from "@/components/base/toast/Toast.ts";
-import Tooltip from "@/components/base/Tooltip.vue";
+import { ShortcutKey, Word, WordPracticeStage, WordPracticeType } from '@/types/types.ts'
+import VolumeIcon from '@/components/icon/VolumeIcon.vue'
+import { useSettingStore } from '@/stores/setting.ts'
+import {
+  usePlayBeep,
+  usePlayCorrect,
+  usePlayKeyboardAudio,
+  usePlayWordAudio,
+} from '@/hooks/sound.ts'
+import { emitter, EventKey, useEvents } from '@/utils/eventBus.ts'
+import { onMounted, onUnmounted, watch } from 'vue'
+import SentenceHightLightWord from '@/pages/word/components/SentenceHightLightWord.vue'
+import { usePracticeStore } from '@/stores/practice.ts'
+import { getDefaultWord } from '@/types/func.ts'
+import { _nextTick, last } from '@/utils'
+import BaseButton from '@/components/BaseButton.vue'
+import Space from '@/pages/article/components/Space.vue'
+import Toast from '@/components/base/toast/Toast.ts'
+import Tooltip from '@/components/base/Tooltip.vue'
 
 interface IProps {
-  word: Word,
+  word: Word
 }
 
 const props = withDefaults(defineProps<IProps>(), {
@@ -23,9 +28,9 @@ const props = withDefaults(defineProps<IProps>(), {
 })
 
 const emit = defineEmits<{
-  complete: [],
-  wrong: [],
-  know: [],
+  complete: []
+  wrong: []
+  know: []
 }>()
 
 let input = $ref('')
@@ -63,8 +68,8 @@ function updateCurrentWordInfo() {
     word: props.word.word,
     input: input,
     inputLock: inputLock,
-    containsSpace: props.word.word.includes(' ')
-  };
+    containsSpace: props.word.word.includes(' '),
+  }
 }
 
 watch(() => props.word, reset, { deep: true })
@@ -73,25 +78,28 @@ function reset() {
   wrong = input = ''
   wordRepeatCount = 0
   showWordResult = inputLock = false
-  wordCompletedTime = 0  // 重置时间戳
+  wordCompletedTime = 0 // 重置时间戳
   if (settingStore.wordSound) {
     if (settingStore.wordPracticeType !== WordPracticeType.Dictation) {
       volumeIconRef?.play(400, true)
     }
   }
   // 更新当前单词信息
-  updateCurrentWordInfo();
+  updateCurrentWordInfo()
   checkCursorPosition()
 }
 
 // 监听输入变化，更新当前单词信息
-watch(() => input, () => {
-  updateCurrentWordInfo();
-})
+watch(
+  () => input,
+  () => {
+    updateCurrentWordInfo()
+  }
+)
 
 onMounted(() => {
   // 初始化当前单词信息
-  updateCurrentWordInfo();
+  updateCurrentWordInfo()
 
   emitter.on(EventKey.resetWord, reset)
   emitter.on(EventKey.onTyping, onTyping)
@@ -229,7 +237,7 @@ async function onTyping(e: KeyboardEvent) {
     input += letter
     wrong = ''
     playKeyboardAudio()
-    updateCurrentWordInfo();
+    updateCurrentWordInfo()
     inputLock = false
   } else if (settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult) {
     //当自测模式下，按1和2会单独处理，如果按其他键则自动默认为不认识
@@ -246,32 +254,34 @@ async function onTyping(e: KeyboardEvent) {
       right = letter === word[input.length]
     }
     //针对中文的特殊判断
-    if (e.shiftKey && (
-        '！' === word[input.length] && e.code === 'Digit1' ||
-        '￥' === word[input.length] && e.code === 'Digit4' ||
-        '…' === word[input.length] && e.code === 'Digit6' ||
-        '（' === word[input.length] && e.code === 'Digit9' ||
-        '—' === word[input.length] && e.code === 'Minus' ||
-        '？' === word[input.length] && e.code === 'Slash' ||
-        '》' === word[input.length] && e.code === 'Period' ||
-        '《' === word[input.length] && e.code === 'Comma' ||
-        '“' === word[input.length] && e.code === 'Quote' ||
-        '：' === word[input.length] && e.code === 'Semicolon' ||
-        '）' === word[input.length] && e.code === 'Digit0')
+    if (
+      e.shiftKey &&
+      (('！' === word[input.length] && e.code === 'Digit1') ||
+        ('￥' === word[input.length] && e.code === 'Digit4') ||
+        ('…' === word[input.length] && e.code === 'Digit6') ||
+        ('（' === word[input.length] && e.code === 'Digit9') ||
+        ('—' === word[input.length] && e.code === 'Minus') ||
+        ('？' === word[input.length] && e.code === 'Slash') ||
+        ('》' === word[input.length] && e.code === 'Period') ||
+        ('《' === word[input.length] && e.code === 'Comma') ||
+        ('“' === word[input.length] && e.code === 'Quote') ||
+        ('：' === word[input.length] && e.code === 'Semicolon') ||
+        ('）' === word[input.length] && e.code === 'Digit0'))
     ) {
       right = true
       letter = word[input.length]
     }
-    if (!e.shiftKey && (
-        '【' === word[input.length] && e.code === 'BracketLeft' ||
-        '、' === word[input.length] && e.code === 'Slash' ||
-        '。' === word[input.length] && e.code === 'Period' ||
-        '，' === word[input.length] && e.code === 'Comma' ||
-        '‘' === word[input.length] && e.code === 'Quote' ||
-        '；' === word[input.length] && e.code === 'Semicolon' ||
-        '【' === word[input.length] && e.code === 'BracketLeft' ||
-        '】' === word[input.length] && e.code === 'BracketRight'
-    )) {
+    if (
+      !e.shiftKey &&
+      (('【' === word[input.length] && e.code === 'BracketLeft') ||
+        ('、' === word[input.length] && e.code === 'Slash') ||
+        ('。' === word[input.length] && e.code === 'Period') ||
+        ('，' === word[input.length] && e.code === 'Comma') ||
+        ('‘' === word[input.length] && e.code === 'Quote') ||
+        ('；' === word[input.length] && e.code === 'Semicolon') ||
+        ('【' === word[input.length] && e.code === 'BracketLeft') ||
+        ('】' === word[input.length] && e.code === 'BracketRight'))
+    ) {
       right = true
       letter = word[input.length]
     }
@@ -292,15 +302,24 @@ async function onTyping(e: KeyboardEvent) {
       }, 500)
     }
     // 更新当前单词信息
-    updateCurrentWordInfo();
+    updateCurrentWordInfo()
     //不需要把inputLock设为false，输入完成不能再输入了，只能删除，删除会打开锁
     if (input.toLowerCase() === word.toLowerCase()) {
-      wordCompletedTime = Date.now()  // 记录单词完成的时间戳
+      wordCompletedTime = Date.now() // 记录单词完成的时间戳
       playCorrect()
-      if ([WordPracticeType.Listen, WordPracticeType.Identify].includes(settingStore.wordPracticeType) && !showWordResult) {
+      if (
+        [WordPracticeType.Listen, WordPracticeType.Identify].includes(
+          settingStore.wordPracticeType
+        ) &&
+        !showWordResult
+      ) {
         showWordResult = true
       }
-      if ([WordPracticeType.FollowWrite, WordPracticeType.Spell].includes(settingStore.wordPracticeType)) {
+      if (
+        [WordPracticeType.FollowWrite, WordPracticeType.Spell].includes(
+          settingStore.wordPracticeType
+        )
+      ) {
         if (settingStore.autoNextWord) {
           if (settingStore.repeatCount == 100) {
             if (settingStore.repeatCustomCount <= wordRepeatCount + 1) {
@@ -337,7 +356,7 @@ function del() {
     }
   }
   // 更新当前单词信息
-  updateCurrentWordInfo();
+  updateCurrentWordInfo()
 }
 
 function showWord() {
@@ -347,16 +366,8 @@ function showWord() {
     }
     showFullWord = true
     //系统设定的默认模式情况下，如果看了单词统计到错词里面去
-    switch (statStore.step) {
-      case 1:
-      case 2:
-      case 4:
-      case 5:
-      case 7:
-      case 8:
-      case 10:
-        emit('wrong')
-        break
+    if (statStore.stage !== WordPracticeStage.FollowWriteNewWord) {
+      emit('wrong')
     }
   }
 }
@@ -389,7 +400,7 @@ function hideWordInTranslation(text: string, word: string): string {
   // 创建正则表达式，匹配单词本身及其常见变形（如复数、过去式等）
   const wordBase = word.toLowerCase()
   const patterns = [
-    `\\b${escapeRegExp(wordBase)}\\b`,  // 单词本身
+    `\\b${escapeRegExp(wordBase)}\\b`, // 单词本身
     `\\b${escapeRegExp(wordBase)}s\\b`, // 复数形式
     `\\b${escapeRegExp(wordBase)}es\\b`, // 复数形式
     `\\b${escapeRegExp(wordBase)}ed\\b`, // 过去式
@@ -416,32 +427,32 @@ watch([() => input, () => showFullWord, () => settingStore.dictation], checkCurs
 function checkCursorPosition() {
   _nextTick(() => {
     // 选中目标元素
-    const cursorEl = document.querySelector(`.cursor`);
-    const inputList = document.querySelectorAll(`.l`);
-    if (!typingWordRef) return;
-    const typingWordRect = typingWordRef.getBoundingClientRect();
+    const cursorEl = document.querySelector(`.cursor`)
+    const inputList = document.querySelectorAll(`.l`)
+    if (!typingWordRef) return
+    const typingWordRect = typingWordRef.getBoundingClientRect()
 
     if (inputList.length) {
-      let inputRect = last(Array.from(inputList)).getBoundingClientRect();
+      let inputRect = last(Array.from(inputList)).getBoundingClientRect()
       cursor = {
         top: inputRect.top + inputRect.height - cursorEl.clientHeight - typingWordRect.top,
         left: inputRect.right - typingWordRect.left - 3,
-      };
+      }
     } else {
-      const dictation = document.querySelector(`.dictation`);
+      const dictation = document.querySelector(`.dictation`)
       let elRect
       if (dictation) {
-        elRect = dictation.getBoundingClientRect();
+        elRect = dictation.getBoundingClientRect()
       } else {
-        const letter = document.querySelector(`.letter`);
-        elRect = letter.getBoundingClientRect();
+        const letter = document.querySelector(`.letter`)
+        elRect = letter.getBoundingClientRect()
       }
       cursor = {
         top: elRect.top + elRect.height - cursorEl.clientHeight - typingWordRect.top,
         left: elRect.left - typingWordRect.left - 3,
-      };
+      }
     }
-  },)
+  })
 }
 
 useEvents([
@@ -454,42 +465,73 @@ useEvents([
   <div class="typing-word" ref="typingWordRef" v-if="word.word.length">
     <div class="flex flex-col items-center">
       <div class="flex gap-1 mt-30">
-        <div class="phonetic"
-             :class="!(!settingStore.dictation || showFullWord || showWordResult) && 'word-shadow'"
-             v-if="settingStore.soundType === 'uk' && word.phonetic0">[{{ word.phonetic0 }}]
+        <div
+          class="phonetic"
+          :class="!(!settingStore.dictation || showFullWord || showWordResult) && 'word-shadow'"
+          v-if="settingStore.soundType === 'uk' && word.phonetic0"
+        >
+          [{{ word.phonetic0 }}]
         </div>
-        <div class="phonetic"
-             :class="((settingStore.dictation || [WordPracticeType.Spell,WordPracticeType.Listen,WordPracticeType.Dictation].includes(settingStore.wordPracticeType)) && !showFullWord && !showWordResult) && 'word-shadow'"
-             v-if="settingStore.soundType === 'us' && word.phonetic1">[{{ word.phonetic1 }}]
+        <div
+          class="phonetic"
+          :class="
+            (settingStore.dictation ||
+              [
+                WordPracticeType.Spell,
+                WordPracticeType.Listen,
+                WordPracticeType.Dictation,
+              ].includes(settingStore.wordPracticeType)) &&
+            !showFullWord &&
+            !showWordResult &&
+            'word-shadow'
+          "
+          v-if="settingStore.soundType === 'us' && word.phonetic1"
+        >
+          [{{ word.phonetic1 }}]
         </div>
         <VolumeIcon
-            :title="`发音(${settingStore.shortcutKeyMap[ShortcutKey.PlayWordPronunciation]})`"
-            ref="volumeIconRef" :simple="true" :cb="() => playWordAudio(word.word)"/>
+          :title="`发音(${settingStore.shortcutKeyMap[ShortcutKey.PlayWordPronunciation]})`"
+          ref="volumeIconRef"
+          :simple="true"
+          :cb="() => playWordAudio(word.word)"
+        />
       </div>
 
       <Tooltip
-          :title="(settingStore.dictation)
-          ? `可以按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示正确答案`
-          : ''
-">
-        <div id="word" class="word my-1"
-             :class="wrong && 'is-wrong'"
-             :style="{fontSize: settingStore.fontSize.wordForeignFontSize +'px'}"
-             @mouseenter="showWord"
-             @mouseleave="mouseleave"
+        :title="
+          settingStore.dictation
+            ? `可以按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示正确答案`
+            : ''
+        "
+      >
+        <div
+          id="word"
+          class="word my-1"
+          :class="wrong && 'is-wrong'"
+          :style="{ fontSize: settingStore.fontSize.wordForeignFontSize + 'px' }"
+          @mouseenter="showWord"
+          @mouseleave="mouseleave"
         >
           <div v-if="settingStore.wordPracticeType === WordPracticeType.Dictation">
-            <div class="letter text-align-center w-full inline-block"
-                 v-opacity="!settingStore.dictation || showWordResult || showFullWord">
+            <div
+              class="letter text-align-center w-full inline-block"
+              v-opacity="!settingStore.dictation || showWordResult || showFullWord"
+            >
               {{ word.word }}
             </div>
             <div
-                class="mt-2 w-120 dictation"
-                :style="{minHeight: settingStore.fontSize.wordForeignFontSize +'px'}"
-                :class="showWordResult ? (right ? 'right' : 'wrong') : ''">
+              class="mt-2 w-120 dictation"
+              :style="{ minHeight: settingStore.fontSize.wordForeignFontSize + 'px' }"
+              :class="showWordResult ? (right ? 'right' : 'wrong') : ''"
+            >
               <template v-for="i in input">
                 <span class="l" v-if="i !== ' '">{{ i }}</span>
-                <Space class="l" v-else :is-wrong="showWordResult ? (!right) : false" :is-wait="!showWordResult"/>
+                <Space
+                  class="l"
+                  v-else
+                  :is-wrong="showWordResult ? !right : false"
+                  :is-wait="!showWordResult"
+                />
               </template>
             </div>
           </div>
@@ -497,47 +539,76 @@ useEvents([
             <span class="input" v-if="input">{{ input }}</span>
             <span class="wrong" v-if="wrong">{{ wrong }}</span>
             <span class="letter" v-if="settingStore.dictation && !showFullWord">
-                  {{ displayWord.split('').map((v) => (v === ' ' ? '&nbsp;' : '_')).join('') }}
-          </span>
+              {{
+                displayWord
+                  .split('')
+                  .map(v => (v === ' ' ? '&nbsp;' : '_'))
+                  .join('')
+              }}
+            </span>
             <span class="letter" v-else>{{ displayWord }}</span>
           </template>
         </div>
       </Tooltip>
 
-      <div class="mt-4 flex gap-4"
-           v-if="settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult">
+      <div
+        class="mt-4 flex gap-4"
+        v-if="settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult"
+      >
         <BaseButton
-            :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
-            size="large" @click="know">我认识
+          :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
+          size="large"
+          @click="know"
+          >我认识
         </BaseButton>
         <BaseButton
-            :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.UnknownWord]})`"
-            size="large" @click="unknown">不认识
+          :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.UnknownWord]})`"
+          size="large"
+          @click="unknown"
+          >不认识
         </BaseButton>
       </div>
 
-      <div class="translate  flex flex-col gap-2 my-3"
-           v-opacity="settingStore.translate || showWordResult || showFullWord"
-           :style="{
-      fontSize: settingStore.fontSize.wordTranslateFontSize +'px',
-    }"
+      <div
+        class="translate flex flex-col gap-2 my-3"
+        v-opacity="settingStore.translate || showWordResult || showFullWord"
+        :style="{
+          fontSize: settingStore.fontSize.wordTranslateFontSize + 'px',
+        }"
       >
         <div class="flex" v-for="v in word.trans">
-          <div class="shrink-0" :class="v.pos ? 'w-12 en-article-family' : '-ml-3'">{{ v.pos }}</div>
+          <div class="shrink-0" :class="v.pos ? 'w-12 en-article-family' : '-ml-3'">
+            {{ v.pos }}
+          </div>
           <span v-if="!settingStore.dictation || showWordResult || showFullWord">{{ v.cn }}</span>
           <span v-else v-html="hideWordInTranslation(v.cn, word.word)"></span>
         </div>
       </div>
     </div>
-    <div class="other anim"
-         v-opacity="![WordPracticeType.Listen,WordPracticeType.Dictation,WordPracticeType.Identify].includes(settingStore.wordPracticeType) || showFullWord || showWordResult">
+    <div
+      class="other anim"
+      v-opacity="
+        ![WordPracticeType.Listen, WordPracticeType.Dictation, WordPracticeType.Identify].includes(
+          settingStore.wordPracticeType
+        ) ||
+        showFullWord ||
+        showWordResult
+      "
+    >
       <div class="line-white my-3"></div>
       <template v-if="word?.sentences?.length">
         <div class="flex flex-col gap-3">
           <div class="sentence" v-for="item in word.sentences">
-            <SentenceHightLightWord class="text-xl" :text="item.c" :word="word.word"
-                                    :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"/>
-            <div class="text-base anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
+            <SentenceHightLightWord
+              class="text-xl"
+              :text="item.c"
+              :word="word.word"
+              :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
+            />
+            <div
+              class="text-base anim"
+              v-opacity="settingStore.translate || showFullWord || showWordResult"
+            >
               {{ item.cn }}
             </div>
           </div>
@@ -550,9 +621,16 @@ useEvents([
           <div class="label">短语</div>
           <div class="flex flex-col">
             <div class="flex items-center gap-4" v-for="item in word.phrases">
-              <SentenceHightLightWord class="en" :text="item.c" :word="word.word"
-                                      :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"/>
-              <div class="cn anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
+              <SentenceHightLightWord
+                class="en"
+                :text="item.c"
+                :word="word.word"
+                :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
+              />
+              <div
+                class="cn anim"
+                v-opacity="settingStore.translate || showFullWord || showWordResult"
+              >
                 {{ item.cn }}
               </div>
             </div>
@@ -560,20 +638,26 @@ useEvents([
         </div>
       </template>
 
-      <template v-if="(settingStore.translate || !settingStore.dictation)">
+      <template v-if="settingStore.translate || !settingStore.dictation">
         <template v-if="word?.synos?.length">
           <div class="line-white my-3"></div>
           <div class="flex">
-            <div class='label'>同近义词</div>
+            <div class="label">同近义词</div>
             <div class="flex flex-col gap-3">
               <div class="flex" v-for="item in word.synos">
                 <div class="pos line-height-1.4rem!">{{ item.pos }}</div>
                 <div>
-                  <div class="cn anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
+                  <div
+                    class="cn anim"
+                    v-opacity="settingStore.translate || showFullWord || showWordResult"
+                  >
                     {{ item.cn }}
                   </div>
-                  <div class="anim" v-opacity="!settingStore.dictation || showFullWord || showWordResult">
-                    <span class="en" v-for="(i,j) in item.ws">
+                  <div
+                    class="anim"
+                    v-opacity="!settingStore.dictation || showFullWord || showWordResult"
+                  >
+                    <span class="en" v-for="(i, j) in item.ws">
                       {{ i }} {{ j !== item.ws.length - 1 ? ' / ' : '' }}
                     </span>
                   </div>
@@ -584,8 +668,12 @@ useEvents([
         </template>
       </template>
 
-      <div class="anim"
-           v-opacity="(settingStore.translate && !settingStore.dictation) || showFullWord || showWordResult">
+      <div
+        class="anim"
+        v-opacity="
+          (settingStore.translate && !settingStore.dictation) || showFullWord || showWordResult
+        "
+      >
         <template v-if="word?.etymology?.length">
           <div class="line-white my-3"></div>
 
@@ -622,8 +710,14 @@ useEvents([
         </template>
       </div>
     </div>
-    <div class="cursor"
-         :style="{top:cursor.top+'px',left:cursor.left+'px',height: settingStore.fontSize.wordForeignFontSize +'px'}"></div>
+    <div
+      class="cursor"
+      :style="{
+        top: cursor.top + 'px',
+        left: cursor.left + 'px',
+        height: settingStore.fontSize.wordForeignFontSize + 'px',
+      }"
+    ></div>
   </div>
 </template>
 
@@ -641,7 +735,8 @@ useEvents([
   color: var(--color-font-2);
   padding-bottom: 8rem;
 
-  .phonetic, .translate {
+  .phonetic,
+  .translate {
     font-size: 1.2rem;
   }
 
@@ -654,10 +749,10 @@ useEvents([
     font-size: 3rem;
     line-height: 1;
     font-family: var(--en-article-family);
-    letter-spacing: .3rem;
+    letter-spacing: 0.3rem;
 
-
-    .input, .right {
+    .input,
+    .right {
       color: rgb(22, 163, 74);
     }
 
@@ -706,7 +801,6 @@ useEvents([
 
 // 移动端适配
 @media (max-width: 768px) {
-
   .typing-word {
     padding: 0 0.5rem 12rem;
 
@@ -716,7 +810,8 @@ useEvents([
       margin: 0.5rem 0;
     }
 
-    .phonetic, .translate {
+    .phonetic,
+    .translate {
       font-size: 1rem;
     }
 
@@ -792,7 +887,8 @@ useEvents([
       margin: 0.3rem 0;
     }
 
-    .phonetic, .translate {
+    .phonetic,
+    .translate {
       font-size: 0.9rem;
     }
 
