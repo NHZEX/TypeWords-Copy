@@ -218,12 +218,13 @@ function next() {
                 <span>{{ msToHourMinute(i.spend) }}</span>
               </div>
             </div>
-            <div class="en-article-family title text-xl">
+            <div class="text-xl en-article-family">
               <div class="text-center text-2xl mb-6">
                 <ArticleAudio :article="selectArticle" :autoplay="settingStore.articleAutoPlayNext" @ended="next" />
               </div>
-              <div class="text-center text-2xl">{{ selectArticle.title }}</div>
+              <div class="text-center text-4xl">{{ selectArticle.title }}</div>
               <div class="text-2xl" v-if="selectArticle.text">
+                <div class="mt-5 mb-10">Question:{{ selectArticle?.question?.text }}</div>
                 <div class="my-5" v-for="t in selectArticle.text.split('\n\n')">{{ t }}</div>
                 <div class="text-right italic mb-5">{{ selectArticle?.quote?.text }}</div>
               </div>
