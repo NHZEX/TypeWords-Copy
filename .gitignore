@@ -23,3 +23,17 @@ dist-ssr
 *.sln
 *.sw?
 report.html
+
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+# Misc
+.fleet
+
+# Local env files
+.env
+.env.*
+!.env.example
