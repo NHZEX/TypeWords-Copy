@@ -5,6 +5,7 @@
     "start": "nuxt dev",
     "dev": "nuxt dev",
     "build": "nuxt build",
+    "test": "",
     "generate": "nuxt generate && node scripts/do.js",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
