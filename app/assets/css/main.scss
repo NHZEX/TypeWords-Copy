@@ -45,6 +45,7 @@
   --zh-article-family: 'Songti SC', 'SimSun', 'Noto Serif CJK SC', serif;
 
   --color-primary: #e6e8eb;
+  --color-primary2: white;
   --color-second: rgb(247, 247, 247);
   --color-third: rgb(228, 230, 232);
   --color-fourth: rgb(218, 220, 222);
@@ -113,6 +114,7 @@ html.dark {
   --color-label-bg: rgb(10, 10, 10);
 
   --color-card-bg: var(--color-second);
+  --color-primary2: var(--color-second);
 
   --bg-card-primary: rgb(30, 31, 34);
   --bg-card-secend: rgb(43, 45, 48);

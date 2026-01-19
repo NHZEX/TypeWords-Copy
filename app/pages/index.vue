@@ -11,7 +11,7 @@ function nav(url: string) {
   window.location.href = url
 }
 
-let theme = $ref('auto')
+let theme = $ref('light')
 
 onMounted(() => {
   // 开启监听系统主题变更,后期可以通过用户配置来决定是否开启
@@ -21,6 +21,9 @@ onMounted(() => {
     theme = val
     setTheme(theme)
   })
+  theme = getSystemTheme()
+  console.log('theme', theme)
+  setTheme(theme)
 })
 
 // 获取当前具体的主题名称
@@ -39,7 +42,7 @@ const { locales, setLocale } = useI18n()
 </script>
 <template>
   <div class="wrapper" id="wrapper">
-    <div class="center relative h-14 bg-second">
+    <div class="center relative h-14 bg-primary2">
       <div class="flex gap-10">
         <NuxtLink to="/words" class="color-reverse-black">
           {{ $t('words') }}
@@ -50,8 +53,11 @@ const { locales, setLocale } = useI18n()
         <NuxtLink to="/nce" class="color-reverse-black">
           {{ $t('new_concept_english') }}
         </NuxtLink>
+        <NuxtLink to="/doc" class="color-reverse-black">
+          {{ $t('new_concept_english') }}
+        </NuxtLink>
       </div>
-      <div class="absolute right-4 flex items-center gap-2">
+      <div class="absolute right-4 flex items-center gap-2 color-reverse-black">
         <NuxtLink to="/qa" class="color-reverse-black" aria-label="Help page">
           <BaseIcon>
             <IconFluentQuestionCircle20Regular />
@@ -59,7 +65,7 @@ const { locales, setLocale } = useI18n()
         </NuxtLink>
 
         <BaseIcon :title="$t('toggle_theme')" @click="toggleTheme">
-          <IconFluentWeatherMoon16Regular v-if="getTheme() === 'light'" />
+          <IconFluentWeatherMoon16Regular v-if="theme === 'light'" />
           <IconFluentWeatherSunny16Regular v-else />
         </BaseIcon>
 
@@ -71,7 +77,7 @@ const { locales, setLocale } = useI18n()
             class="space-y-2 btn-no-margin pt-2 absolute z-2 right-0 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-150 pointer-events-none group-hover:pointer-events-auto"
           >
             <div class="card p-4! space-y-2">
-              <div v-for="locale in locales" @click="setLocale(locale.code)" class="w-full cp">
+              <div v-for="locale in locales" @click="setLocale(locale.code)" class="w-full cp break-keep">
                 {{ locale.name }}
               </div>
             </div>
@@ -89,19 +95,14 @@ const { locales, setLocale } = useI18n()
           </BaseIcon>
           <NuxtImg
             class="z-0 shrink-0 h-8 -ml-4"
-            src="https://img.shields.io/github/stars/zyronon/typing-word?style=flat-square&label=%20&color=white"
+            :src="`https://img.shields.io/github/stars/zyronon/typing-word?style=flat-square&label=%20&color=${theme === 'light' ? 'white' : 'black'}`"
           />
         </a>
       </div>
     </div>
+
     <div class="content bg-primary">
       <h1>{{ APP_NAME }}</h1>
-      <div class="flex gap-4">
-        <button class="text-xl border-none bg-transparent cp" v-for="locale in locales" @click="setLocale(locale.code)">
-          {{ locale.name }}
-        </button>
-      </div>
-      <div class="line"></div>
       <h2 class="font-normal m-0">{{ $t('app_desc') }}</h2>
       <div class="">
         <div class="base-button" @click="nav('/words')">{{ $t('start_word_practice') }}</div>
@@ -109,6 +110,31 @@ const { locales, setLocale } = useI18n()
       </div>
 
       <div class="container mb-4">
+        <div class="text-4xl font-bold mb-8">单词练习</div>
+        <div class="flex gap-14">
+          <div class="title">
+            <ul class="p-0 m-0 list-none space-y-2">
+              <li>{{ $t('home_word_practice_desc1') }}</li>
+              <li>{{ $t('home_word_practice_desc2') }}</li>
+              <li>{{ $t('home_word_practice_desc3') }}</li>
+            </ul>
+          </div>
+          <NuxtImg src="/imgs/words.png" class="rounded-xl flex-1" />
+        </div>
+
+        <div class="text-4xl font-bold mb-8 mt-20 text-right">文章练习</div>
+        <div class="flex gap-14 w-full">
+          <NuxtImg src="/imgs/articles.png" class="rounded-xl flex-1" />
+          <div class="title">
+            <ul class="p-0 m-0 list-none space-y-2">
+              <li>{{ $t('home_word_practice_desc1') }}</li>
+              <li>{{ $t('home_word_practice_desc2') }}</li>
+              <li>{{ $t('home_word_practice_desc3') }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="text-4xl font-bold mb-8 mt-20 text-center">功能介绍</div>
         <div class="card-wrap">
           <div class="card hover">
             <div class="emoji">📚</div>
@@ -215,7 +241,7 @@ const { locales, setLocale } = useI18n()
 .wrapper {
   --color-bg: #e6e8eb;
   --color-card-bg: rgb(247, 247, 247);
-  --color-card-text: #111827;
+  //--color-card-text: #111827;
   --color-line: #cecece;
   --color-h2: rgb(91, 91, 91);
   --accent: #818cf8;
@@ -226,7 +252,7 @@ const { locales, setLocale } = useI18n()
 .wrapper.dark {
   --color-bg: #0e1217;
   --color-card-bg: rgb(30, 31, 34);
-  --color-card-text: #c6c6c6;
+  //--color-card-text: #c6c6c6;
   --color-line: #333333;
   --color-h2: rgb(151, 151, 151);
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
@@ -247,11 +273,11 @@ const { locales, setLocale } = useI18n()
     Arial,
     'Apple Color Emoji',
     'Segoe UI Emoji';
-  color: var(--color-card-text);
+  //color: var(--color-card-text);
   @apply flex flex-col justify-between min-h-screen;
 
   .content {
-    @apply mt-22 flex flex-col items-center gap-8;
+    @apply mt-16 flex flex-col items-center gap-8;
 
     .container {
       width: min(1260px, 92%);
@@ -276,10 +302,10 @@ h1 {
 
 .card {
   @apply w-auto relative rounded-xl p-5 box-border flex flex-col items-start gap-2 mb-0;
-  background: var(--color-card-bg);
-  color: var(--color-card-text);
+  //background: var(--color-card-bg);
+  //color: var(--color-card-text);
   box-shadow: var(--shadow);
-  border: 1px solid var(--color-line);
+  //border: 1px solid var(--color-line);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;

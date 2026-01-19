@@ -5,6 +5,7 @@ export default defineConfig({
   transformers: [transformerDirectives()],
   shortcuts: {
     'bg-primary': 'bg-[var(--color-primary)]',
+    'bg-primary2': 'bg-[var(--color-primary2)]',
     'bg-second': 'bg-[var(--color-second)]',
     'bg-third': 'bg-[var(--color-third)]',
     'bg-fourth': 'bg-[var(--color-fourth)]',

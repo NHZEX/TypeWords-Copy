@@ -114,13 +114,13 @@ export default defineNuxtConfig({
   i18n: {
     locales: [
       { code: 'zh', language: 'zh-CN', file: 'zh.json', name: '中文' },
-      { code: 'en', language: 'en-US', file: 'en.json', name: 'English' },
-      { code: 'ja', language: 'ja-JP', file: 'ja.json', name: '日本語' },
-      { code: 'ko', language: 'ko-KR', file: 'ko.json', name: '한국어' },
-      { code: 'de', language: 'de-DE', file: 'de.json', name: 'Deutsch' },
-      { code: 'fr', language: 'fr-FR', file: 'fr.json', name: 'Français' },
-      { code: 'es', language: 'es-ES', file: 'es.json', name: 'Español' },
-      { code: 'pt', language: 'pt-BR', file: 'pt.json', name: 'Português' },
+      // { code: 'en', language: 'en-US', file: 'en.json', name: 'English' },
+      // { code: 'ja', language: 'ja-JP', file: 'ja.json', name: '日本語' },
+      // { code: 'ko', language: 'ko-KR', file: 'ko.json', name: '한국어' },
+      // { code: 'de', language: 'de-DE', file: 'de.json', name: 'Deutsch' },
+      // { code: 'fr', language: 'fr-FR', file: 'fr.json', name: 'Français' },
+      // { code: 'es', language: 'es-ES', file: 'es.json', name: 'Español' },
+      // { code: 'pt', language: 'pt-BR', file: 'pt.json', name: 'Português' },
       // { code: 'ru', language: 'ru-RU', file: 'ru.json', name: 'Русский' },
       // { code: 'th', language: 'th-TH', file: 'th.json', name: 'ไทย' },
       // { code: 'vi', language: 'vi-VN', file: 'vi.json', name: 'Tiếng Việt' },
@@ -129,6 +129,7 @@ export default defineNuxtConfig({
       // { code: 'tw', language: 'zh-TW', file: 'tw.json', name: '繁體中文' },
     ],
     defaultLocale: 'zh',
+    // langDir:'app/i18n/',
     strategy: 'no_prefix',
   },
   // CSS
