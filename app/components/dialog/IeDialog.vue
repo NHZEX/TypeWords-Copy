@@ -19,13 +19,13 @@ function closeIEDialog() {
   <Teleport to="body">
     <div v-if="showIEDialog" class="ie-mask" @click="closeIEDialog">
       <div class="ie-dialog space-y-4" @click.stop>
-        <div class="text-xl font-bold">不支持 IE 浏览器</div>
+        <div class="text-xl font-bold">{{ $t('ie_not_supported') }}</div>
         <div class="text-base">
-          Type Words 使用现代技术构建，请使用 Chrome、Edge、Firefox 或 Safari 等现代浏览器访问。
+          {{ $t('ie_use_modern_browser') }}
         </div>
         <div class="flex justify-end gap-4">
-          <a class="btn" href="https://www.google.cn/chrome/" target="_blank" rel="noreferrer">下载 Chrome</a>
-          <button class="btn-secondary" type="button" @click="closeIEDialog">我知道了</button>
+          <a class="btn" href="https://www.google.cn/chrome/" target="_blank" rel="noreferrer">{{ $t('download_chrome') }}</a>
+          <button class="btn-secondary" type="button" @click="closeIEDialog">{{ $t('i_understand') }}</button>
         </div>
       </div>
     </div>

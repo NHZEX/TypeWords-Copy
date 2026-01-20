@@ -14,6 +14,8 @@ import Space from '~/components/article/Space.vue'
 import Toast from '~/components/base/toast/Toast'
 import Tooltip from '~/components/base/Tooltip.vue'
 import { ShortcutKey, WordPracticeStage, WordPracticeType } from '~/types/enum'
+import { useI18n } from 'vue-i18n'
+const { t: $t } = useI18n()
 
 interface IProps {
   word: Word
@@ -136,7 +138,7 @@ function know(e) {
       input = props.word.word
       emit('know')
       if (!showNotice) {
-        Toast.info('若误选“我认识”，可按删除键重新选择！', { duration: 5000 })
+        Toast.info($t('know_word_tip'), { duration: 5000 })
         showNotice = true
       }
       return
@@ -178,7 +180,7 @@ async function onTyping(e: KeyboardEvent) {
           // 错误时，提示用户按删除键，仅默写需要提示
           pressNumber++
           if (pressNumber >= 3) {
-            Toast.info('请按删除键重新输入', { duration: 2000 })
+            Toast.info($t('press_delete_reinput'), { duration: 2000 })
             pressNumber = 0
           }
         }
@@ -188,7 +190,7 @@ async function onTyping(e: KeyboardEvent) {
       if (right) {
         pressNumber++
         if (pressNumber >= 3) {
-          Toast.info('请按空格键继续', { duration: 2000 })
+          Toast.info($t('press_space_continue'), { duration: 2000 })
           pressNumber = 0
         }
       } else {
@@ -457,7 +459,15 @@ useEvents([
       <div class="flex gap-1 mt-30">
         <div
           class="phonetic"
-          :class="!(!settingStore.dictation || showFullWord || showWordResult) && 'word-shadow'"
+          :class="
+            (settingStore.dictation ||
+              [WordPracticeType.Spell, WordPracticeType.Listen, WordPracticeType.Dictation].includes(
+                settingStore.wordPracticeType
+              )) &&
+            !showFullWord &&
+            !showWordResult &&
+            'word-shadow'
+          "
           v-if="settingStore.soundType === 'uk' && word.phonetic0"
         >
           [{{ word.phonetic0 }}]
@@ -537,16 +547,16 @@ useEvents([
         v-if="settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult"
       >
         <BaseButton
-          :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
+          :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
           size="large"
           @click="know"
-          >我认识
+          >{{ $t('i_know') }}
         </BaseButton>
         <BaseButton
-          :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.UnknownWord]})`"
+          :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[ShortcutKey.UnknownWord]})`"
           size="large"
           @click="unknown"
-          >不认识
+          >{{ $t('i_dont_know') }}
         </BaseButton>
       </div>
 
@@ -596,7 +606,7 @@ useEvents([
       <template v-if="word?.phrases?.length">
         <div class="line-white my-3"></div>
         <div class="flex">
-          <div class="label">短语</div>
+          <div class="label">{{ $t('phrases') }}</div>
           <div class="flex flex-col">
             <div class="flex items-center gap-4" v-for="item in word.phrases">
               <SentenceHightLightWord
@@ -617,7 +627,7 @@ useEvents([
         <template v-if="word?.synos?.length">
           <div class="line-white my-3"></div>
           <div class="flex">
-            <div class="label">同近义词</div>
+            <div class="label">{{ $t('synonyms') }}</div>
             <div class="flex flex-col gap-3">
               <div class="flex" v-for="item in word.synos">
                 <div class="pos line-height-1.4rem!">{{ item.pos }}</div>
@@ -645,7 +655,7 @@ useEvents([
           <div class="line-white my-3"></div>
 
           <div class="flex">
-            <div class="label">词源</div>
+            <div class="label">{{ $t('etymology') }}</div>
             <div class="text-base">
               <div class="mb-2" v-for="item in word.etymology">
                 <div class="">{{ item.t }}</div>
@@ -658,10 +668,10 @@ useEvents([
 
         <template v-if="word?.relWords?.root && false">
           <div class="flex">
-            <div class="label">同根词</div>
+            <div class="label">{{ $t('related_words') }}</div>
             <div class="flex flex-col gap-3">
               <div v-if="word.relWords.root" class=" ">
-                词根：<span class="en">{{ word.relWords.root }}</span>
+                {{ $t('word_root') }}：<span class="en">{{ word.relWords.root }}</span>
               </div>
               <div class="flex" v-for="item in word.relWords.rels">
                 <div class="pos">{{ item.pos }}</div>

@@ -30,8 +30,8 @@ const props = withDefaults(defineProps<ModalProps>(), {
   fullScreen: false,
   footer: false,
   header: true,
-  confirmButtonText: '确认',
-  cancelButtonText: '取消',
+  confirmButtonText: '',
+  cancelButtonText: '',
   keyboard: true,
 })
 
@@ -148,7 +148,7 @@ async function cancel() {
         @click.stop="closeOnClickBg && close()"
       ></div>
       <div class="modal" ref="modalRef" :class="[fullScreen ? 'full' : 'window']">
-        <Tooltip title="关闭">
+        <Tooltip :title="$t('close')">
           <IconFluentDismiss20Regular
             @click="close"
             v-if="showClose"
@@ -168,9 +168,9 @@ async function cancel() {
             <slot name="footer-left"></slot>
           </div>
           <div class="right">
-            <BaseButton type="info" @click="cancel">{{ cancelButtonText }}</BaseButton>
+            <BaseButton type="info" @click="cancel">{{ cancelButtonText || $t('cancel') }}</BaseButton>
             <BaseButton id="dialog-ok" :loading="confirmButtonLoading" @click="ok"
-              >{{ confirmButtonText }}
+              >{{ confirmButtonText || $t('confirm') }}
             </BaseButton>
           </div>
         </div>

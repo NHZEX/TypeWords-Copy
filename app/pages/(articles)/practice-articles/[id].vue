@@ -579,7 +579,7 @@ provide('currentPractice', currentPractice)
                   :title="`开关释义显示(${settingStore.shortcutKeyMap[ShortcutKey.ToggleShowTranslate]})`"
                   @click="settingStore.translate = !settingStore.translate"
                 >
-                  <IconFluentTranslate16Regular v-if="settingStore.translate" />
+                  <IconPhTranslate v-if="settingStore.translate" />
                   <IconFluentTranslateOff16Regular v-else />
                 </BaseIcon>
 

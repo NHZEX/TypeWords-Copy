@@ -19,22 +19,22 @@ useDisableEventListener(() => show)
 </script>
 
 <template>
-  <Dialog v-model="show" title="设置" padding>
+  <Dialog v-model="show" :title="$t('settings')" padding>
     <div class="setting text-lg w-200 h-[60vh] text-md flex flex-col">
       <div class="flex flex-1 overflow-hidden">
         <div class="left">
           <div class="tabs">
             <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1" v-if="type === 'word'">
               <IconFluentTextUnderlineDouble20Regular width="20" />
-              <span>单词设置</span>
+              <span>{{ $t('word_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2" v-if="type === 'article'">
               <IconFluentBookLetter20Regular width="20" />
-              <span>文章设置</span>
+              <span>{{ $t('article_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 0 && 'active'" @click="tabIndex = 0">
               <IconFluentSettings20Regular width="20" />
-              <span>通用设置</span>
+              <span>{{ $t('general_settings') }}</span>
             </div>
           </div>
         </div>
@@ -47,7 +47,7 @@ useDisableEventListener(() => show)
     </div>
   </Dialog>
   <BaseIcon
-    title="设置"
+    :title="$t('settings')"
     @click="
       show = true;
       tabIndex = props.type === 'word' ? 1 : 2

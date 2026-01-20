@@ -316,24 +316,24 @@ function transferOk() {
         <div class="left">
           <div class="tabs">
             <div class="tab" :class="tabIndex === 0 && 'active'" @click="tabIndex = 0">
-              <IconFluentSettings20Regular width="20" />
+              <IconFluentSettings20Regular/>
               <span>{{ $t('general_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1">
-              <IconFluentTextUnderlineDouble20Regular width="20" />
+              <IconFluentTextUnderlineDouble20Regular/>
               <span>{{ $t('word_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2">
-              <IconFluentBookLetter20Regular width="20" />
+              <IconFluentBookLetter20Regular/>
               <span>{{ $t('article_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 4 && 'active'" @click="tabIndex = 4">
-              <IconFluentDatabasePerson20Regular width="20" />
+              <IconFluentDatabasePerson20Regular/>
               <span>{{ $t('data_management') }}</span>
             </div>
 
             <div class="tab" :class="tabIndex === 3 && 'active'" @click="tabIndex = 3">
-              <IconFluentKeyboardLayoutFloat20Regular width="20" />
+              <IconFluentKeyboardLayoutFloat20Regular/>
               <span>{{ $t('shortcut_settings') }}</span>
             </div>
 
@@ -348,12 +348,12 @@ function transferOk() {
                 }
               "
             >
-              <IconFluentTextBulletListSquare20Regular width="20" />
+              <IconFluentTextBulletListSquare20Regular />
               <span>{{ $t('update_log') }}</span>
               <div class="red-point" v-if="runtimeStore.isNew"></div>
             </div>
             <div class="tab" :class="tabIndex === 6 && 'active'" @click="tabIndex = 6">
-              <IconFluentPerson20Regular width="20" />
+              <IconFluentPerson20Regular />
               <span>{{ $t('about') }}</span>
             </div>
           </div>
@@ -382,7 +382,9 @@ function transferOk() {
                       @blur="handleInputBlur"
                     />
                     <span @click.stop="editShortcutKey = ''"
-                      >{{ $t('press_key_to_set') }}，<span class="text-red!">{{ $t('click_here_when_done') }}</span></span
+                      >{{ $t('press_key_to_set') }}，<span class="text-red!">{{
+                        $t('click_here_when_done')
+                      }}</span></span
                     >
                   </div>
                   <div v-else>
@@ -405,9 +407,9 @@ function transferOk() {
               {{ $t('data_saved_locally') }}。如果您需要在不同的设备、浏览器上使用 {{ APP_NAME }}，
               您需要手动进行数据导出和导入
             </div>
-            <BaseButton :loading="exportLoading" size="large" class="mt-3" @click="exportData()"
-              >{{ $t('export_data_backup') }}</BaseButton
-            >
+            <BaseButton :loading="exportLoading" size="large" class="mt-3" @click="exportData()">{{
+              $t('export_data_backup')
+            }}</BaseButton>
             <div class="text-gray text-sm mt-2">💾 导出的ZIP文件包含所有学习数据，可在其他设备上导入恢复</div>
 
             <div class="line mt-15 mb-3"></div>
@@ -417,7 +419,9 @@ function transferOk() {
               >当前所有数据，请谨慎操作。执行导入操作时，会先自动备份当前数据到您的电脑中，供您随时恢复
             </div>
             <div class="flex gap-space mt-3">
-              <BaseButton size="large" @click="beforeImport" :loading="importLoading">{{ $t('import_data_restore') }}</BaseButton>
+              <BaseButton size="large" @click="beforeImport" :loading="importLoading">{{
+                $t('import_data_restore')
+              }}</BaseButton>
               <input
                 type="file"
                 id="import"
@@ -479,6 +483,10 @@ function transferOk() {
         width: 10rem;
         gap: 0.6rem;
         transition: all 0.5s;
+
+        svg {
+          @apply text-lg shrink-0;
+        }
 
         &:hover {
           background: var(--btn-primary);

@@ -5,6 +5,8 @@ import {sendCode} from "@/apis/user.ts";
 import {PHONE_CONFIG} from "@/config/auth.ts";
 import Toast from "@/components/base/toast/Toast.ts";
 import {CodeType} from "@/types/enum.ts";
+import { useI18n } from 'vue-i18n';
+const { t: $t } = useI18n();
 
 let isSendingCode = $ref(false)
 let codeCountdown = $ref(0)
@@ -36,11 +38,11 @@ async function sendVerificationCode() {
           }
         }, 1000)
       } else {
-        Toast.error(res.msg || '发送失败')
+        Toast.error(res.msg || $t('send_failed'))
       }
     } catch (error) {
       console.error('Send code error:', error)
-      Toast.error('发送验证码失败')
+      Toast.error($t('send_code_failed'))
     } finally {
       isSendingCode = false
     }
@@ -57,7 +59,7 @@ async function sendVerificationCode() {
     :size="props.size"
     style="border: 1px solid var(--color-input-border)"
   >
-    {{ codeCountdown > 0 ? `${codeCountdown}s` : (isSendingCode ? '发送中' : '发送验证码') }}
+    {{ codeCountdown > 0 ? `${codeCountdown}s` : (isSendingCode ? $t('sending') : $t('send_code')) }}
   </BaseButton>
 </template>
 

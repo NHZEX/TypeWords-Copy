@@ -5,44 +5,45 @@ import WeChat from '~/components/channel-icons/WeChat.vue'
 
 <template>
   <div class="text">
-    <div class="title">如果您在使用过程中发现以下情况: </div>
+    <div class="title">{{ $t('conflict_notice_title') }}</div>
     <ul>
       <li>
-        <div class="title">按下键盘无反应</div>
+        <div class="title">{{ $t('keyboard_no_response') }}</div>
         <div>
           <div class="text">
-            请检查是否安装
-            <span class="text-xl font-bold text-red-500">“视频调速” “Vim” “音视频增强” "网课助手"</span>
-            等插件/脚本，它们会拦截键盘按下事件，<span class="font-bold text-red">导致在本网站练习时按键无反应</span
-            >，请根据以下步骤解决冲突：
+            {{ $t('check_plugins_installed') }}
+            <span class="text-xl font-bold text-red-500">{{ $t('conflict_plugin_names') }}</span>
+            {{ $t('plugins_intercept_keyboard') }}<span class="font-bold text-red">{{ $t('cause_no_response') }}</span
+            >{{ $t('follow_steps_to_resolve') }}
           </div>
           <ul class="m-0">
-            <li>用浏览器无痕模式打开本网站，确认能否正常输入？</li>
+            <li>{{ $t('try_incognito_mode') }}</li>
             <li>
-              无痕模式下无法输入，<span class="color-link mx-1 cp" @click="jump2Feedback">点此</span
-              >反馈，或者加微信群反馈：<WeChat />
+              {{ $t('incognito_not_working') }}<span class="color-link mx-1 cp" @click="jump2Feedback">{{ $t('click_here') }}</span
+              >{{ $t('feedback_or_wechat') }}<WeChat />
             </li>
-            <li>无痕模式下可以输入，则是插件/脚本导致的冲突</li>
-            <li>临时禁用对应插件/脚本，或在对应插件/脚本的设置里面排除本网站</li>
+            <li>{{ $t('incognito_working') }}</li>
+            <li>{{ $t('disable_plugin_or_exclude') }}</li>
             <li>
-              可安装此
+              {{ $t('install_extension_manager') }}
               <a
                 href="https://chromewebstore.google.com/detail/one-click-extensions-mana/pbgjpgbpljobkekbhnnmlikbbfhbhmem"
                 target="_blank"
-                >插件(Chrome版本，需翻墙)</a
+                >{{ $t('chrome_extension') }}</a
               >,
               <a
                 href="https://microsoftedge.microsoft.com/addons/detail/%E5%BF%AB%E6%8D%B7%E6%89%A9%E5%B1%95%E7%AE%A1%E7%90%86/jdodenbllldnoogfmbmmgpieafbnaogm"
                 target="_blank"
-                >插件(Edge版本，无需翻墙)</a
-              >, 来快速激活、禁用其他插件
+                >{{ $t('edge_extension') }}</a
+              >, {{ $t('to_manage_extensions') }}
             </li>
           </ul>
         </div>
       </li>
       <li>
-        <div class="title">按删除键却返回了上一页</div>
-        <div>在360浏览器中，按删除键会返回上一页，在浏览器设置里面搜索 "后退" 或者 "返回"，将对应的快捷键删除</div>
+        <div class="title">{{ $t('delete_key_goes_back') }}</div>
+        <div>{{ $t('browser_360_shortcut') }}</div>
+        <div>{{ $t('change_browser_or_shortcut') }}</div>
       </li>
     </ul>
   </div>

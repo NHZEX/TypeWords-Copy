@@ -27,12 +27,12 @@ useDisableEventListener(() => show)
 <template>
   <Dialog
     v-model="show"
-    title="重要提示"
+    :title="$t('important_notice')"
     footer
     padding
     :closeOnClickBg="false"
-    cancel-button-text="不再提醒"
-    confirm-button-text="关闭"
+    :cancel-button-text="$t('dont_remind')"
+    :confirm-button-text="$t('close')"
     @cancel="settingStore.conflictNotice = false"
   >
     <div class="w-150 center flex-col color-main">

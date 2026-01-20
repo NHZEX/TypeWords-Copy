@@ -46,13 +46,13 @@ const getDifficultyClass = (difficulty: string) => {
       </div>
       <div class="space-y-2 mb-4">
         <div v-if="resource.author" class="text-sm text-gray-600 dark:text-gray-300">
-          <span class="font-medium">作者：</span>{{ resource.author }}
+          <span class="font-medium">{{ $t('author') }}</span>{{ resource.author }}
         </div>
         <div v-if="resource.features" class="text-sm text-gray-600 dark:text-gray-300">
-          <span class="font-medium">🌟 特点：</span>{{ resource.features }}
+          <span class="font-medium">🌟 {{ $t('features') }}</span>{{ resource.features }}
         </div>
         <div v-if="resource.suitable" class="text-sm text-gray-600 dark:text-gray-300">
-          <span class="font-medium">📌 适合：</span>{{ resource.suitable }}
+          <span class="font-medium">📌 {{ $t('suitable_for') }}</span>{{ resource.suitable }}
         </div>
         <div v-if="resource.description" class="text-sm text-gray-600 dark:text-gray-300">
           {{ resource.description }}
@@ -68,7 +68,7 @@ const getDifficultyClass = (difficulty: string) => {
     </div>
     <div class="flex flex-col gap-3">
       <BaseButton type="primary" @click="emit('openLink', resource.link)">
-        打开链接
+        {{ $t('open_link') }}
       </BaseButton>
     </div>
   </div>

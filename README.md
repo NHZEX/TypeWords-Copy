@@ -3,97 +3,95 @@
 </h1>
 
 <p align="center">
- <a href="/docs/README.en.md">English</a> | <a href="/README.md">简体中文</a> 
+  <a href="/README.md">English</a> |
+  <a href="/docs/README.es.md">Español</a> |
+  <a href="/docs/README.de.md">Deutsch</a> |
+  <a href="/docs/README.fr.md">Français</a> |
+  <a href="/docs/README.pt.md">Português</a> |
+  <a href="/docs/README.ru.md">Русский</a> |
+  <a href="/docs/README.uk.md">Українська</a> |
+  <a href="/docs/README.ja.md">日本語</a> |
+  <a href="/docs/README.ko.md">한국인</a> |
+  <a href="/docs/README.th.md">ไทย</a> |
+  <a href="/docs/README.vi.md">Tiếng Việt</a> |
+  <a href="/docs/README.id.md">Bahasa Indonesia</a> |
+  <a href="/docs/README.zh-TW.md">繁體中文</a> |
+  <a href="/docs/README.zh-CN.md">简体中文</a> 
 </p>
 
 <p align="center">
-  <b>学习英语，一次敲击，一点进步；记忆不再盲目，学习更高效，开源单词与文章练习工具</b>
+  <b>Learn English, one keystroke at a time; smarter memorization, more efficient learning - an open-source word and article practice tool</b>
 </p>
 
-<p align="center">
-  <a href="https://github.com/zyronon/type-word/blob/master/LICENSE"><img src="https://img.shields.io/github/license/zyronon/type-word" alt="License"></a>
-  <a><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"/></a>
-  <a><img src="https://img.shields.io/badge/Powered%20by-Vue-blue"/></a>
-  <a href="https://hellogithub.com/repository/eb70616d65604458908fc1736e7d41fc" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=eb70616d65604458908fc1736e7d41fc&claim_uid=k5e4ZAqRjJEGzCW&theme=small" alt="Featured｜HelloGitHub" /></a>
-</p>
+## Online Access
 
-<div align=center>
-  <a href="https://trendshift.io/repositories/15226" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15226" alt="zyronon%2FTypeWords | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</div>
+[https://typewords.cc](https://typewords.cc)
 
-<img width="1920" height="1440" alt="295shots_so" src="https://github.com/user-attachments/assets/383ed437-856e-48fe-92b0-9619babb49be" />
-<img width="1920" height="1440" alt="922shots_so" src="https://github.com/user-attachments/assets/5b5fa13f-747c-4368-ae21-3c9d7d30fbc7" />
+<img width="1920" height="1440" alt="295shots_so" src="public/imgs/words.png" />
+<img width="1920" height="1440" alt="922shots_so" src="public/imgs/words.png" />
 
-## 在线访问
+## Features
 
-[https://typewords.cc](https://typewords.cc)   
+### Word Practice
 
-## 功能列表
+- Practice modes: Follow-along / Dictation / Self-test / Spelling from memory
+- Smart mode: Automatically calculates learning words based on memory curves, deepening memory through dictation
+- Free mode: No restrictions, plan your own learning
+- Provides phonetics, pronunciation (American/British), example sentences, phrases, synonyms, root words, etymology, error statistics, and more
 
-### 单词练习
+### Article Memorization
 
-- 四种输入模式：跟打 / 辨认 / 复习 / 默写
-- 智能模式：记忆曲线自动计算学习单词，并通过默写加深记忆
-- 自由模式：不受限制，自行规划
-- 提供音标、发音（美音、英音）、例句、短语、近义词、同根词、词源、错误统计等功能
+- Built-in classic textbooks; you can also add or import articles with one-click translation and bilingual comparison
+- Follow-along + dictation dual modes, sentence-by-sentence input with automatic pronunciation for more efficient memorization
+- Supports listening while writing from memory to reinforce learning
 
-### 背文章
+### Favorites, Wrong Words, Mastered
 
-- 内置经典教材书籍，也可自行添加、导入文章，提供一键翻译、译文对照功能
-- 跟打 + 默写双模式，逐句输入，自动发音，让背诵更高效
-- 支持边听边默写，强化记忆
+- Words typed incorrectly while learning are automatically added to your wrong word book for later review
+- Actively add words to mastered to automatically skip them in future sessions
+- Add words to favorites for consolidation and review
 
-### 收藏、错词本、已掌握
+### Highly Customizable
 
-- 学习单词时输入错误自动添加到错词本，方便后续复习
-- 可主动添加到已掌握，后续学习时自动跳过
-- 可主动添加到收藏中，以便巩固复习
+- Rich keyboard sound effects
+- Customizable shortcuts
+- Highly configurable settings
 
-### 高度自由
+### Clean and Efficient
 
-- 丰富的键盘音效
-- 可自定义快捷键
-- 高度定制化的设置选项
+- Clean design, modern UI, ad-free
+- Refreshing interface, simple operation
+- No forced subscription to any platform
 
-### 简洁高效
+### Vocabulary Library
 
-- 简洁设计，现代化UI，无广告
-- 界面清爽，操作简单
-- 不强制关注任何平台
+Built-in commonly used vocabulary including CET-4, CET-6, GMAT, GRE, IELTS, SAT, TOEFL, Graduate English, TEM-4, TEM-8, and more.
+Designed to meet most users' vocabulary learning needs. Community contributions of additional vocabulary are welcome.
 
-### 词库
+## Running the Project
 
-内置了常用的 CET-4 、CET-6 、GMAT 、GRE 、IELTS 、SAT 、TOEFL 、考研英语、专业四级英语、专业八级英语等词库。
-尽可能满足大部分用户对背单词的需求，也非常欢迎社区贡献更多的词库。
+#### Note: This project can run standalone with data saved locally. Manual backup is required when switching devices; this does not affect normal usage.
+This project is built with `Nuxt` and requires a Node.js environment.
 
-## 运行
+1. Install NodeJS, refer to the [official documentation](https://nodejs.org/en/download)
+2. The project is large. It's recommended to use `git clone --depth 1 https://github.com/zyronon/TypeWords.git` to clone only the latest commit. GitHub's Download ZIP feature will not work properly.
+3. In the project root directory, open a terminal and run `pnpm install` to download dependencies.
+4. Run `pnpm run dev` to start the project. The default address is [`http://localhost:5567`](http://localhost:5567)
+5. Open [`http://localhost:5567`](http://localhost:5567) in your browser to access the project.
+6. Run `pnpm run generate` to build the project files.
 
-#### 注：本项目可单独运行，数据保存在本地，换设备需手动备份数据，不影响正常使用；
-本项目是基于`Vue`开发的，需要 node 环境来运行。
+## Features and Suggestions
 
-1. 安装 NodeJS，参考[官方文档](https://nodejs.org/en/download)
-2. 项目文件很大，推荐使用 `git clone --depth 1 https://github.com/zyronon/TypeWords.git` 命令只克隆最近一次提交。直接下载
-   Github 提供的 Download ZIP 功能是无法运行的
-3. 在项目根目录下，打开命令行，运行`npm install`来下载依赖。
-4. 执行`npm run dev`来启动项目，项目默认地址为[`http://localhost:3000`](http://localhost:3000)
-5. 在浏览器中打开[`http://localhost:3000`](http://localhost:3000)  来访问项目。
-6. 执行`npm run build`打包项目文件
+The project is currently in early development, with new features being added continuously. If you have any suggestions or feature requests, feel free to open an `Issue`.
+If you like the design philosophy of this software, please submit a `PR`. Thank you for your support!
 
-## 功能与建议
+## Contributing Guide
 
-目前项目处于开发初期，新功能正在持续添加中，如果你对软件有任何功能与建议，欢迎在 `Issues` 中提出
-如果你也喜欢本软件的设计思想，欢迎提交 `pr`，非常感谢你对我们的支持！
+[Contributing Guidelines](/docs/CONTRIBUTING.md)
 
-## 贡献指南
+If you're interested in this project, we welcome your contributions and will provide as much help as possible.
 
-[贡献准则](/docs//CONTRIBUTING.md)
+Before contributing, please communicate with the developers to avoid code conflicts.
 
-如果您对本项目感兴趣，我们非常欢迎参与到项目的贡献中，我们会尽可能地提供帮助
-
-在贡献前，希望您阅读 [Issue #57](https://github.com/zyronon/TypeWords/issues/57)  了解我们目前的开发计划，我们希望您能参与到"计划中"的工作亦或者 Issue 区 Label 为 "Help Wanted" 的工作，我们也非常欢迎您实现自己的想法。
-
-如果您确定了想要参与的工作，希望在有基本进展后提交 draft pr，我们可以在 draft pr 上进行讨论，也有利于听取其他 collaborator 的意见。
-
-再次感谢您对项目的贡献！🎉
-
+Thank you again for your contributions!
 

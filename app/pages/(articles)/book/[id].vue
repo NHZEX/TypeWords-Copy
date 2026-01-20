@@ -279,7 +279,7 @@ watch(
                       </span>
                       <div class="flex items-center gap-2 mr-4">
                         <BaseIcon :title="$t('toggle_translation')" @click="showTranslate = !showTranslate">
-                          <IconFluentTranslate16Regular v-if="showTranslate" />
+                          <IconPhTranslate v-if="showTranslate" />
                           <IconFluentTranslateOff16Regular v-else />
                         </BaseIcon>
                         <BaseIcon

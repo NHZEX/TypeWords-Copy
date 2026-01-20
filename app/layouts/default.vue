@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import Logo from '@/components/Logo.vue'
-import { useSettingStore } from '@/stores/setting.ts'
-import { useRouter } from 'vue-router'
-import useTheme from '@/hooks/theme.ts'
 import BaseIcon from '@/components/BaseIcon.vue'
-import { useRuntimeStore } from '@/stores/runtime.ts'
-import { ShortcutKey } from '@/types/enum.ts'
-import { useBaseStore } from '@/stores/base'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
-import { onMounted, watch } from 'vue'
-import { Origin } from '@/config/env'
+import Logo from '@/components/Logo.vue'
 import MigrateDialog from '@/components/MigrateDialog.vue'
+import { Origin } from '@/config/env'
+import useTheme from '@/hooks/theme.ts'
+import { useBaseStore } from '@/stores/base'
+import { useRuntimeStore } from '@/stores/runtime.ts'
+import { useSettingStore } from '@/stores/setting.ts'
+import { ShortcutKey } from '@/types/enum.ts'
+import { onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useInit } from '~/composables/useInit.ts'
 
 const router = useRouter()
@@ -42,6 +42,7 @@ onMounted(() => {
   }
 })
 
+const { locales, setLocale } = useI18n()
 </script>
 
 <template>
@@ -51,36 +52,31 @@ onMounted(() => {
     <div class="aside anim fixed">
       <div class="top" :class="!expand && 'hidden-span'">
         <Logo v-if="expand" />
-        <div class="row" @click="router.push('/')">
-          <IconFluentHome20Regular />
-          <span>主页</span>
-        </div>
-        <div class="row" @click="router.push('/words')">
+        <NuxtLink to="/words" class="row">
           <IconFluentTextUnderlineDouble20Regular />
-          <span>{{$t('words')}}</span>
-        </div>
-        <div id="article" class="row" @click="router.push('/articles')">
-          <!--          <IconPhArticleNyTimes/>-->
+          <span>{{ $t('words') }}</span>
+        </NuxtLink>
+        <NuxtLink to="/articles" class="row">
           <IconFluentBookLetter20Regular />
-          <span>{{$t('articles')}}</span>
-        </div>
-        <div class="row" @click="router.push('/setting')">
+          <span>{{ $t('articles') }}</span>
+        </NuxtLink>
+        <NuxtLink to="/setting" class="row">
           <IconFluentSettings20Regular />
-          <span>{{$t('setting')}}</span>
+          <span>{{ $t('setting') }}</span>
           <div class="red-point" :class="!settingStore.sideExpand && 'top-1 right-0'" v-if="runtimeStore.isNew"></div>
-        </div>
-        <div class="row" @click="router.push('/feedback')">
+        </NuxtLink>
+        <NuxtLink to="/feedback" class="row">
           <IconFluentCommentEdit20Regular />
-          <span>{{$t('feedback')}}</span>
-        </div>
-        <div class="row" @click="router.push('/doc')">
+          <span>{{ $t('feedback') }}</span>
+        </NuxtLink>
+        <NuxtLink to="/doc" class="row">
           <IconFluentDocument20Regular />
-          <span>{{$t('document')}}</span>
-        </div>
-        <div class="row" @click="router.push('/qa')">
+          <span>{{ $t('document') }}</span>
+        </NuxtLink>
+        <NuxtLink to="/help" class="row">
           <IconFluentQuestionCircle20Regular />
-          <span>{{$t('help')}}</span>
-        </div>
+          <span>{{ $t('help') }}</span>
+        </NuxtLink>
         <!--        <div class="row" @click="router.push('/user')">-->
         <!--          <IconFluentPerson20Regular/>-->
         <!--          <span >用户</span>-->
@@ -91,9 +87,22 @@ onMounted(() => {
           <IconFluentChevronLeft20Filled v-if="expand" />
           <IconFluentChevronLeft20Filled class="transform-rotate-180" v-else />
         </BaseIcon>
-        <BaseIcon @click="settingStore.sideExpand = !settingStore.sideExpand">
-          <IconFluentTranslate16Regular />
-        </BaseIcon>
+
+        <div class="relative group" v-if="expand">
+          <BaseIcon>
+            <IconPhTranslate />
+          </BaseIcon>
+          <div
+            class="space-y-2 btn-no-margin pt-2 absolute z-2 left-1/2 -transform-translate-x-1/2 bottom-full opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-150 pointer-events-none group-hover:pointer-events-auto"
+          >
+            <div class="card mb-2 py-4 px-6 space-y-3">
+              <div v-for="locale in locales" @click="setLocale(locale.code)" class="w-full cp break-keep black-link">
+                {{ locale.name }}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <BaseIcon
           v-if="expand"
           :title="`${$t('toggle_theme')}(${settingStore.shortcutKeyMap[ShortcutKey.ToggleTheme]})`"
@@ -170,6 +179,7 @@ onMounted(() => {
   .row {
     @apply cursor-pointer rounded-md text p-2 my-2 flex items-center gap-2 relative shrink-0;
     transition: all 0.5s;
+    color: var(--color-main-text);
 
     &:hover {
       background: var(--btn-primary);

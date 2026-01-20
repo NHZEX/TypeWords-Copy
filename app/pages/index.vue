@@ -41,48 +41,48 @@ function toggleTheme() {
 const { locales, setLocale } = useI18n()
 </script>
 <template>
-  <div class="wrapper" id="wrapper">
-    <div class="center relative h-14 bg-primary2">
+  <div class="wrapper bg-primary2 text-lg" :class="theme" id="wrapper">
+    <div class="center relative h-14">
       <div class="flex gap-10">
-        <NuxtLink to="/words" class="color-reverse-black">
+        <NuxtLink to="/words" class="black-link">
           {{ $t('words') }}
         </NuxtLink>
-        <NuxtLink to="/articles" class="color-reverse-black">
+        <NuxtLink to="/articles" class="black-link">
           {{ $t('articles') }}
         </NuxtLink>
-        <NuxtLink to="/nce" class="color-reverse-black">
-          {{ $t('new_concept_english') }}
-        </NuxtLink>
-        <NuxtLink to="/doc" class="color-reverse-black">
-          {{ $t('new_concept_english') }}
+<!--        <NuxtLink to="/nce" class="black-link">-->
+<!--          {{ $t('new_concept_english') }}-->
+<!--        </NuxtLink>-->
+        <NuxtLink to="/doc" class="black-link">
+          {{ $t('english_document') }}
         </NuxtLink>
       </div>
-      <div class="absolute right-4 flex items-center gap-2 color-reverse-black">
+      <div class="absolute right-6 flex items-center gap-2 color-reverse-black">
         <NuxtLink to="/qa" class="color-reverse-black" aria-label="Help page">
           <BaseIcon>
             <IconFluentQuestionCircle20Regular />
           </BaseIcon>
         </NuxtLink>
 
-        <BaseIcon :title="$t('toggle_theme')" @click="toggleTheme">
-          <IconFluentWeatherMoon16Regular v-if="theme === 'light'" />
-          <IconFluentWeatherSunny16Regular v-else />
-        </BaseIcon>
-
         <div class="relative group">
           <div class="more w-10 rounded-r-lg h-full center box-border transition-all duration-300">
-            <IconFluentTranslate16Regular />
+            <IconPhTranslate />
           </div>
           <div
             class="space-y-2 btn-no-margin pt-2 absolute z-2 right-0 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-150 pointer-events-none group-hover:pointer-events-auto"
           >
             <div class="card p-4! space-y-2">
-              <div v-for="locale in locales" @click="setLocale(locale.code)" class="w-full cp break-keep">
+              <div v-for="locale in locales" @click="setLocale(locale.code)" class="w-full cp break-keep black-link">
                 {{ locale.name }}
               </div>
             </div>
           </div>
         </div>
+
+        <BaseIcon :title="$t('toggle_theme')" @click="toggleTheme">
+          <IconFluentWeatherMoon16Regular v-if="theme === 'light'" />
+          <IconFluentWeatherSunny16Regular v-else />
+        </BaseIcon>
 
         <a
           class="flex gap-2 relative color-reverse-black"
@@ -100,8 +100,9 @@ const { locales, setLocale } = useI18n()
         </a>
       </div>
     </div>
+    <div class="line"></div>
 
-    <div class="content bg-primary">
+    <div class="content">
       <h1>{{ APP_NAME }}</h1>
       <h2 class="font-normal m-0">{{ $t('app_desc') }}</h2>
       <div class="">
@@ -109,34 +110,34 @@ const { locales, setLocale } = useI18n()
         <div class="base-button" @click="nav('/articles')">{{ $t('start_article_practice') }}</div>
       </div>
 
-      <div class="container mb-4">
-        <div class="text-4xl font-bold mb-8">单词练习</div>
-        <div class="flex gap-14">
-          <div class="title">
-            <ul class="p-0 m-0 list-none space-y-2">
-              <li>{{ $t('home_word_practice_desc1') }}</li>
-              <li>{{ $t('home_word_practice_desc2') }}</li>
-              <li>{{ $t('home_word_practice_desc3') }}</li>
-            </ul>
+      <div class="w-70vw mb-4 mt-20">
+        <div class="text-4xl font-bold mb-8">{{$t('home_word_practice')}}</div>
+        <div class="flex gap-10">
+          <ul class="p-0 m-0 list-none space-y-2 shrink-0">
+            <li>{{ $t('home_word_practice_desc1') }}</li>
+            <li>{{ $t('home_word_practice_desc2') }}</li>
+            <li>{{ $t('home_word_practice_desc3') }}</li>
+          </ul>
+          <div class="flex-1">
+            <NuxtImg src="/imgs/words.png" class="rounded-xl w-full" />
           </div>
-          <NuxtImg src="/imgs/words.png" class="rounded-xl flex-1" />
         </div>
 
-        <div class="text-4xl font-bold mb-8 mt-20 text-right">文章练习</div>
+        <div class="text-4xl font-bold mb-8 mt-20 text-right">{{$t('home_article_practice')}}</div>
         <div class="flex gap-14 w-full">
-          <NuxtImg src="/imgs/articles.png" class="rounded-xl flex-1" />
-          <div class="title">
-            <ul class="p-0 m-0 list-none space-y-2">
-              <li>{{ $t('home_word_practice_desc1') }}</li>
-              <li>{{ $t('home_word_practice_desc2') }}</li>
-              <li>{{ $t('home_word_practice_desc3') }}</li>
-            </ul>
+          <div class="flex-1">
+            <NuxtImg src="/imgs/articles.png" class="rounded-xl w-full" />
           </div>
+          <ul class="p-0 m-0 list-none space-y-2 shrink-0">
+            <li>{{ $t('home_word_practice_desc1') }}</li>
+            <li>{{ $t('home_word_practice_desc2') }}</li>
+            <li>{{ $t('home_word_practice_desc3') }}</li>
+          </ul>
         </div>
 
-        <div class="text-4xl font-bold mb-8 mt-20 text-center">功能介绍</div>
+        <div class="text-4xl font-bold mb-8 mt-20 text-center">{{$t('function_desc')}}</div>
         <div class="card-wrap">
-          <div class="card hover">
+          <div class="card1 hover">
             <div class="emoji">📚</div>
             <div class="title">{{ $t('home_word_practice') }}</div>
             <div class="desc">
@@ -147,7 +148,7 @@ const { locales, setLocale } = useI18n()
               </ul>
             </div>
           </div>
-          <div class="card hover">
+          <div class="card1 hover">
             <div class="emoji">✍️</div>
             <div class="title">{{ $t('home_article_practice') }}</div>
             <div class="desc">
@@ -158,7 +159,7 @@ const { locales, setLocale } = useI18n()
               </ul>
             </div>
           </div>
-          <div class="card hover">
+          <div class="card1 hover">
             <div class="emoji">📕</div>
             <div class="title">{{ $t('home_collection') }}</div>
             <div class="desc">
@@ -169,14 +170,14 @@ const { locales, setLocale } = useI18n()
               </ul>
             </div>
           </div>
-          <div class="card hover">
+          <div class="card1 hover">
             <div class="emoji">🌐</div>
             <div class="title">{{ $t('home_vocabulary') }}</div>
             <div class="desc">{{ $t('home_vocabulary_desc') }}</div>
           </div>
         </div>
         <div class="card-wrap">
-          <div class="card hover">
+          <div class="card1 hover">
             <div class="emoji">🆓</div>
             <div class="title">{{ $t('home_free_opensource') }}</div>
             <div class="desc">
@@ -187,7 +188,7 @@ const { locales, setLocale } = useI18n()
               </ul>
             </div>
           </div>
-          <div class="card hover">
+          <div class="card1 hover">
             <div class="emoji">⚙️</div>
             <div class="title">{{ $t('home_customization') }}</div>
             <div class="desc">
@@ -198,7 +199,7 @@ const { locales, setLocale } = useI18n()
               </ul>
             </div>
           </div>
-          <div class="card hover">
+          <div class="card1 hover">
             <div class="emoji">🎨</div>
             <div class="title">{{ $t('home_design') }}</div>
             <div class="desc">
@@ -209,7 +210,7 @@ const { locales, setLocale } = useI18n()
               </ul>
             </div>
           </div>
-          <div class="card hover">
+          <div class="card1 hover">
             <div class="emoji">🎯</div>
             <div class="title">{{ $t('home_personalized') }}</div>
             <div class="desc">
@@ -228,10 +229,13 @@ const { locales, setLocale } = useI18n()
       <div class="line"></div>
       <div class="w-full center gap-4 mt-6 mb-12">
         <channel-icons type="horizontal" :share="false" />
-        <a href="https://beian.mps.gov.cn/#/query/webSearch?code=51015602001426" target="_blank"
+        <a
+          href="https://beian.mps.gov.cn/#/query/webSearch?code=51015602001426"
+          target="_blank"
+          class="black-link text-sm"
           >{{ $t('cn_limit_no1') }}
         </a>
-        <a href="https://beian.miit.gov.cn/" target="_blank">{{ $t('cn_limit_no2') }}</a>
+        <a href="https://beian.miit.gov.cn/" class="black-link text-sm" target="_blank">{{ $t('cn_limit_no2') }}</a>
       </div>
     </div>
   </div>
@@ -240,8 +244,7 @@ const { locales, setLocale } = useI18n()
 <style scoped lang="scss">
 .wrapper {
   --color-bg: #e6e8eb;
-  --color-card-bg: rgb(247, 247, 247);
-  //--color-card-text: #111827;
+  --color-card1-bg: #f6f6f7;
   --color-line: #cecece;
   --color-h2: rgb(91, 91, 91);
   --accent: #818cf8;
@@ -251,8 +254,7 @@ const { locales, setLocale } = useI18n()
 
 .wrapper.dark {
   --color-bg: #0e1217;
-  --color-card-bg: rgb(30, 31, 34);
-  //--color-card-text: #c6c6c6;
+  --color-card1-bg: #202127;
   --color-line: #333333;
   --color-h2: rgb(151, 151, 151);
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
@@ -279,32 +281,28 @@ const { locales, setLocale } = useI18n()
   .content {
     @apply mt-16 flex flex-col items-center gap-8;
 
-    .container {
-      width: min(1260px, 92%);
-
-      .card-wrap {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        margin-bottom: 1.2rem;
-        gap: 1rem;
-      }
+    .card-wrap {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      margin-bottom: 1.2rem;
+      gap: 1rem;
     }
   }
 }
 
 h1 {
   font-size: 4.8rem !important;
+  line-height: 1.6;
   background: linear-gradient(120deg, #bd34fe 30%, #41d1ff);
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
   @apply m-0 font-bold color-transparent bg-clip-text;
 }
 
-.card {
+.card1 {
   @apply w-auto relative rounded-xl p-5 box-border flex flex-col items-start gap-2 mb-0;
-  //background: var(--color-card-bg);
-  //color: var(--color-card-text);
-  box-shadow: var(--shadow);
+  //background: var(--color-second);
+  background: var(--color-card1-bg);
   //border: 1px solid var(--color-line);
   transition:
     transform 0.2s ease,
@@ -324,7 +322,7 @@ h1 {
   }
 
   ul {
-    @apply mt-0 pl-4;
+    @apply mt-0 pl-0 list-none;
   }
 }
 

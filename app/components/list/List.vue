@@ -133,7 +133,7 @@ defineExpose({scrollBottom})
         <div class="right">
           <BaseIcon
               @click.stop="delItem(item)"
-              title="删除">
+              :title="$t('delete')">
             <DeleteIcon/>
           </BaseIcon>
           <div

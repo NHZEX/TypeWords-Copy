@@ -9,21 +9,21 @@ import WeChat from "~/components/channel-icons/WeChat.vue";
   <h1>Type Words</h1>
   <div class="w-120">
     <p class="text-xl">
-      感谢使用本项目！本项目是开源项目，免费使用，如果觉得有帮助，请在 GitHub 点个 Star，您的支持是我持续改进的动力！
+      {{ $t('about_thanks') }}
     </p>
     <p>
-      GitHub地址：<a :href="GITHUB" target="_blank">{{ GITHUB }}</a>
+      {{ $t('github_address') }}<a :href="GITHUB" target="_blank">{{ GITHUB }}</a>
     </p>
     <div class="flex flex-col gap-2 mt-20">
       <div class="flex items-center">
-        微信反馈：<WeChat/>
+        {{ $t('about_wechat_feedback') }}<WeChat/>
       </div>
       <div class="">
-        工单反馈：<a :href="`https://v.wjx.cn/vm/ev0W7fv.aspx#`"
+        {{ $t('about_ticket_feedback') }}<a :href="`https://v.wjx.cn/vm/ev0W7fv.aspx#`"
                     target="_blank">https://v.wjx.cn/vm/ev0W7fv.aspx#</a>
       </div>
       <div class="flex items-center">
-        其他渠道：
+        {{ $t('about_other_channels') }}
         <ChannelIcons type="horizontal"
                       :share="false"
                       :wechat="false"

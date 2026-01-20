@@ -8,7 +8,7 @@ import BaseIcon from '@/components/BaseIcon.vue'
     :href="GITHUB"
     target="_blank"
     rel="noreferrer"
-    aria-label="GITHUB 项目地址"
+    :aria-label="$t('github_project')"
     class="color-reverse-black github"
   >
     <BaseIcon title="Github" v-bind="$attrs">
